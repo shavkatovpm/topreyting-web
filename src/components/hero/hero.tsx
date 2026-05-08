@@ -3,9 +3,9 @@ import { ArrowUpRight, Sparkles, Search, BookOpen, Trophy } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="min-h-[calc(100vh-4rem)] flex flex-col">
-      <div className="container-page py-6 md:py-8 flex-1 flex">
-        <div className="grid grid-cols-4 grid-rows-2 gap-3 md:gap-4 flex-1 w-full min-h-[420px]">
+    <section>
+      <div className="container-page py-6 md:py-10">
+        <div className="grid grid-cols-4 grid-rows-2 gap-3 md:gap-4 w-full min-h-[520px] md:min-h-[640px]">
           {/* Headline tile — emerald (primary) */}
           <div className="col-span-4 row-span-2 md:col-span-2 md:row-span-2 rounded-3xl bg-[oklch(0.55_0.16_155)] text-white p-6 md:p-9 flex flex-col justify-between relative overflow-hidden">
             <div
