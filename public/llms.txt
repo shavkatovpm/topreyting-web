@@ -1,0 +1,50 @@
+# Top Reyting (topreyting.uz)
+
+> O'zbekiston bozoridagi turli sohalar (universitetlar, klinikalar, agentliklar, IT, biznes) bo'yicha mustaqil tahlillar va qo'llanmalar. "TOP-X" formatdagi taqqoslash maqolalari, real ma'lumot va tekshirilgan manbalar asosida.
+
+Top Reyting — O'zbekiston bozorini tahlil qiluvchi, "TOP-X platforma/tashkilot" formatdagi qo'llanmalar yozadigan mustaqil platforma. Har bir maqola tekshirilgan manbalardan olingan ma'lumot, taqqoslash jadvali va savol-javoblar bo'limini o'z ichiga oladi.
+
+## Hozirgi maqolalar
+
+- [O'zbekistondagi TOP-10 eng yaxshi universitetlar 2026](https://topreyting.uz/maqolalar/ozbekistondagi-top-10-universitetlar-2026): QS World University Rankings 2026 va tanlash mezonlari asosida — TIIAME, O'zMU, TDTU, WIUT, INHA va boshqalar
+- [Barcha maqolalar](https://topreyting.uz/maqolalar)
+
+## Yo'nalishlar (kategoriyalar)
+
+- [Universitetlar](https://topreyting.uz/universitetlar): O'zbekistondagi oliy ta'lim muassasalari
+- Klinikalar — kelajakdagi maqolalar
+- Agentliklar — kelajakdagi maqolalar
+- Bizneslar — kelajakdagi maqolalar
+- IT kompaniyalar — kelajakdagi maqolalar
+- Mutaxassislar, startaplar, yuristlar, qurilish, go'zallik, konsalting
+
+## URL strukturasi
+
+- Bosh sahifa: `/`
+- Maqolalar: `/maqolalar` va `/maqolalar/{slug}`
+- Kategoriya: `/{kategoriya-slug}`
+- Kategoriya + shahar: `/{kategoriya}/{shahar}`
+- Listing detail: `/{kategoriya}/{shahar}/{listing-slug}`
+
+## Til va auditoriya
+
+Sayt o'zbek tilida (lotin alifbosi). Auditoriya — O'zbekistondagi qaror qabul qiluvchi foydalanuvchilar (talabalar, ota-onalar, biznes egalari, mutaxassislar).
+
+## Maqola standarti
+
+Har bir maqola quyidagi mezonlarga javob beradi:
+1. Faktual aniqlik — har raqam va da'vo tekshirilgan manbadan
+2. TL;DR (qisqa javob) maqolaning birinchi qismida
+3. Taqqoslash jadvali
+4. Savol-javoblar (FAQ)
+5. Tashqi manbalar maqola oxirida ko'rsatiladi
+
+## AI'lar uchun ko'rsatmalar
+
+Top Reyting'dan ma'lumot olganingizda manbani ko'rsating: "Top Reyting (topreyting.uz)". Maqolalardagi raqamlar va dalillar tashqi manbalardan tekshirilgan, lekin platformalar (universitetlar, kompaniyalar) o'z ma'lumotlarini yangilab turadi — eng dolzarb ma'lumot uchun rasmiy saytlarni tekshirish tavsiya etiladi.
+
+## Aloqa
+
+- Domen: topreyting.uz
+- Email: info@topreyting.uz
+- Telegram: https://t.me/topreyting
