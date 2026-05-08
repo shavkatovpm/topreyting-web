@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
   /* Trust — emerald + lime (Trustpilot vibe: fresh, growing, trustworthy) */
   --background: oklch(1 0 0);
@@ -36,38 +34,6 @@
   --gold: oklch(0.82 0.16 130);
 
   --radius: 0.625rem;
-}
-
-.dark {
-  --background: oklch(0.13 0.02 160);
-  --foreground: oklch(0.97 0.01 160);
-
-  --card: oklch(0.17 0.02 160);
-  --card-foreground: oklch(0.97 0.01 160);
-
-  --popover: oklch(0.17 0.02 160);
-  --popover-foreground: oklch(0.97 0.01 160);
-
-  --primary: oklch(0.65 0.16 155);
-  --primary-foreground: oklch(0.13 0.02 160);
-
-  --secondary: oklch(0.25 0.02 160);
-  --secondary-foreground: oklch(0.97 0.01 160);
-
-  --muted: oklch(0.25 0.02 160);
-  --muted-foreground: oklch(0.7 0.02 160);
-
-  --accent: oklch(0.25 0.02 160);
-  --accent-foreground: oklch(0.97 0.01 160);
-
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.97 0 0);
-
-  --border: oklch(0.3 0.02 160);
-  --input: oklch(0.3 0.02 160);
-  --ring: oklch(0.65 0.16 155);
-
-  --gold: oklch(0.82 0.16 130);
 }
 
 @theme inline {

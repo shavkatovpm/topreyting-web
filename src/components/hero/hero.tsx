@@ -1,52 +1,73 @@
 import Link from "next/link";
-import { Search, ArrowRight } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { ArrowUpRight, Sparkles, Search, BookOpen, Trophy } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      {/* Animated mesh background */}
-      <div className="absolute inset-0 -z-10" aria-hidden>
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-gold/20 blur-[120px] animate-pulse [animation-delay:1s]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] animate-pulse [animation-delay:2s]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,var(--background)_85%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, var(--foreground) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-      </div>
+    <section className="min-h-[calc(100vh-4rem)] flex flex-col">
+      <div className="container-page py-6 md:py-8 flex-1 flex">
+        <div className="grid grid-cols-4 grid-rows-2 gap-3 md:gap-4 flex-1 w-full min-h-[420px]">
+          {/* Headline tile — emerald (primary) */}
+          <div className="col-span-4 row-span-2 md:col-span-2 md:row-span-2 rounded-3xl bg-[oklch(0.55_0.16_155)] text-white p-6 md:p-9 flex flex-col justify-between relative overflow-hidden">
+            <div
+              className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/15 blur-3xl"
+              aria-hidden
+            />
+            <div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
+                O&apos;zbekistondagi eng yaxshilarni topadigan platforma.
+              </h1>
+              <p className="mt-3 md:mt-4 text-sm md:text-base opacity-90 max-w-md">
+                Mustaqil tahlillar, qo&apos;llanmalar va reytinglar.
+              </p>
+            </div>
+            <Sparkles className="self-end text-white size-9 md:size-14" />
+          </div>
 
-      <div className="container-page py-20 md:py-28">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-[-0.04em] leading-[0.95]">
-            <span className="block">Topdagilarni</span>
-            <span className="block bg-gradient-to-br from-primary to-gold bg-clip-text text-transparent">
-              biz topamiz.
-            </span>
-          </h1>
+          {/* Articles — coral */}
+          <Link
+            href="/maqolalar"
+            className="col-span-2 md:col-span-1 row-span-1 rounded-3xl bg-[oklch(0.72_0.18_30)] text-white p-4 md:p-5 flex flex-col justify-between hover:opacity-90 transition-opacity group"
+          >
+            <div>
+              <p className="text-base md:text-2xl uppercase tracking-wider opacity-80 mb-1.5 md:mb-2">
+                Maqolalar
+              </p>
+              <p className="font-bold text-2xl md:text-4xl leading-tight inline-flex items-center gap-1.5 md:gap-2">
+                Hammasi
+                <ArrowUpRight className="size-5 md:size-8 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+              </p>
+            </div>
+            <BookOpen className="self-end text-white size-7 md:size-10" />
+          </Link>
 
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            O&apos;zbekistondagi har sohaning eng yaxshilarini tanlash bo&apos;yicha
-            mustaqil qo&apos;llanmalar va tahlillar.
-          </p>
+          {/* Search — deep blue */}
+          <Link
+            href="/qidiruv"
+            className="col-span-2 md:col-span-1 row-span-1 rounded-3xl bg-[oklch(0.45_0.2_255)] text-white p-4 md:p-5 flex flex-col justify-between hover:opacity-90 transition-opacity group"
+          >
+            <div>
+              <p className="text-base md:text-2xl uppercase tracking-wider opacity-80 mb-1.5 md:mb-2">
+                Qidiruv
+              </p>
+              <p className="font-bold text-2xl md:text-4xl leading-tight inline-flex items-center gap-1.5 md:gap-2">
+                Boshlash
+                <ArrowUpRight className="size-5 md:size-8 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+              </p>
+            </div>
+            <Search className="self-end text-white size-7 md:size-10" />
+          </Link>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/maqolalar" className={buttonVariants({ size: "lg" })}>
-              Maqolalarni o&apos;qish
-              <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/qidiruv"
-              className={buttonVariants({ size: "lg", variant: "outline" })}
-            >
-              <Search size={16} />
-              Qidirish
-            </Link>
+          {/* Mission — gold (full bottom-right row) */}
+          <div className="col-span-4 md:col-span-2 row-span-1 rounded-3xl bg-[oklch(0.85_0.16_85)] text-white p-5 md:p-6 flex flex-col justify-between">
+            <p className="font-bold leading-[1.05] max-w-3xl">
+              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+                Mustaqil reyting
+              </span>
+              <span className="block text-base md:text-2xl font-medium opacity-90 mt-1.5 md:mt-2">
+                — yolg&apos;onsiz, manbalardan tekshirilgan
+              </span>
+            </p>
+            <Trophy className="self-end text-white size-9 md:size-14" />
           </div>
         </div>
       </div>

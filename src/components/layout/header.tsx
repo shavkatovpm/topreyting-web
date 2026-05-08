@@ -1,11 +1,18 @@
 import Link from "next/link";
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 import { Logo } from "./logo";
 import { CategoriesDropdown } from "./categories-dropdown";
-import { buttonVariants } from "@/components/ui/button";
+import { MobileMenu } from "./mobile-menu";
 import { getActiveCategories } from "@/data/categories";
 import { getAllArticles } from "@/lib/articles";
 import { cn } from "@/lib/utils";
+
+const pageLinks = [
+  { href: "/maqolalar", label: "Maqolalar" },
+  { href: "/qidiruv", label: "Qidiruv" },
+  { href: "/biz-haqimizda", label: "Biz haqimizda" },
+  { href: "/aloqa", label: "Aloqa" },
+];
 
 export function Header() {
   const articleCats = Array.from(new Set(getAllArticles().map((a) => a.category)));
@@ -75,20 +82,63 @@ export function Header() {
           </Link>
 
           <Link
-            href="/qoshish"
-            className={buttonVariants({ size: "sm" }) + " hidden sm:inline-flex"}
+            href="/qidiruv"
+            aria-label="Qidiruv"
+            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border hover:bg-secondary transition-colors"
           >
-            <Plus size={16} />
-            <span>E&apos;lon qo&apos;shish</span>
+            <Search size={18} />
           </Link>
 
-          <Link
-            href="/qoshish"
-            aria-label="E'lon qo'shish"
-            className="sm:hidden inline-flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground"
-          >
-            <Plus size={18} />
-          </Link>
+          <MobileMenu>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
+              Kategoriyalar
+            </p>
+            {activeCategories.length > 0 ? (
+              <ul className="space-y-1 mb-6">
+                {activeCategories.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <li key={cat.slug}>
+                      <Link
+                        href={`/${cat.slug}`}
+                        className="flex items-center gap-3 rounded-lg p-2.5 hover:bg-secondary transition-colors"
+                      >
+                        <div
+                          className={cn(
+                            "grid h-9 w-9 place-items-center rounded-md bg-gradient-to-br text-white shrink-0",
+                            cat.color
+                          )}
+                        >
+                          <Icon size={16} />
+                        </div>
+                        <span className="font-medium">{cat.namePlural}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground mb-6">
+                Tez orada kategoriyalar qo&apos;shiladi
+              </div>
+            )}
+
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
+              Sahifalar
+            </p>
+            <ul className="space-y-1">
+              {pageLinks.map((it) => (
+                <li key={it.href}>
+                  <Link
+                    href={it.href}
+                    className="block rounded-lg px-3 py-2.5 hover:bg-secondary transition-colors font-medium"
+                  >
+                    {it.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </MobileMenu>
         </div>
       </div>
     </header>
