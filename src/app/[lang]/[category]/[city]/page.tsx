@@ -9,14 +9,17 @@ import { ListingCard } from "@/components/cards/listing-card";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
+import { locales, isLocale, type Locale } from "@/i18n";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  const params: { category: string; city: string }[] = [];
-  for (const cat of categories) {
-    for (const city of cities) {
-      params.push({ category: cat.slug, city: city.slug });
+  const params: { lang: string; category: string; city: string }[] = [];
+  for (const lang of locales) {
+    for (const cat of categories) {
+      for (const city of cities) {
+        params.push({ lang, category: cat.slug, city: city.slug });
+      }
     }
   }
   return params;
@@ -25,24 +28,31 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string; city: string }>;
+  params: Promise<{ lang: string; category: string; city: string }>;
 }): Promise<Metadata> {
-  const { category: catSlug, city: citySlug } = await params;
+  const { lang, category: catSlug, city: citySlug } = await params;
   const category = getCategory(catSlug);
   const city = getCity(citySlug);
   if (!category || !city) return {};
 
-  const title = `${city.name} shahridagi eng yaxshi ${category.namePlural.toLowerCase()} 2026 | Top Reyting`;
-  const description = `${city.name}dagi eng yaxshi ${category.namePlural.toLowerCase()} reytingi. Reyting, sharhlar, manzil, telefon va kontakt ma'lumotlari.`;
+  const title = `${city.name} ${category.namePlural} | Top Reyting`;
+  const description = `${city.name}: ${category.namePlural}.`;
 
   return {
     title,
     description,
-    alternates: { canonical: `/${catSlug}/${citySlug}` },
+    alternates: {
+      canonical: `/${lang}/${catSlug}/${citySlug}`,
+      languages: {
+        uz: `/uz/${catSlug}/${citySlug}`,
+        ru: `/ru/${catSlug}/${citySlug}`,
+        "x-default": `/uz/${catSlug}/${citySlug}`,
+      },
+    },
     openGraph: {
       title,
       description,
-      url: `${site.url}/${catSlug}/${citySlug}`,
+      url: `${site.url}/${lang}/${catSlug}/${citySlug}`,
       type: "website",
     },
   };
@@ -51,9 +61,11 @@ export async function generateMetadata({
 export default async function CategoryCityPage({
   params,
 }: {
-  params: Promise<{ category: string; city: string }>;
+  params: Promise<{ lang: string; category: string; city: string }>;
 }) {
-  const { category: catSlug, city: citySlug } = await params;
+  const { lang, category: catSlug, city: citySlug } = await params;
+  if (!isLocale(lang)) notFound();
+  const locale: Locale = lang;
   const category = getCategory(catSlug);
   const city = getCity(citySlug);
 
@@ -68,14 +80,14 @@ export default async function CategoryCityPage({
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm">
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href={`/${locale}`} className="hover:text-foreground">
               <span data-lang="uz">Bosh sahifa</span>
               <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
           <li>
-            <Link href={`/${catSlug}`} className="hover:text-foreground">
+            <Link href={`/${locale}/${catSlug}`} className="hover:text-foreground">
               {category.namePlural}
             </Link>
           </li>
@@ -121,7 +133,7 @@ export default async function CategoryCityPage({
                 не добавлены.
               </span>
             </p>
-            <Link href="/qoshish" className="text-primary hover:underline text-sm">
+            <Link href={`/${locale}/qoshish`} className="text-primary hover:underline text-sm">
               <span data-lang="uz">Birinchi bo&apos;lib qo&apos;shing →</span>
               <span data-lang="ru">Добавьте первым →</span>
             </Link>
@@ -129,7 +141,7 @@ export default async function CategoryCityPage({
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {cityListings.map((l) => (
-              <ListingCard key={l.slug} listing={l} showRank />
+              <ListingCard key={l.slug} listing={l} showRank lang={locale} />
             ))}
           </div>
         )}

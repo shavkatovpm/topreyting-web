@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { JsonLd } from "@/components/json-ld";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
+import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import { site } from "@/lib/site";
 
 const inter = Inter({
@@ -12,9 +10,6 @@ const inter = Inter({
   subsets: ["latin", "cyrillic"],
   display: "swap",
 });
-
-// Anti-FOUC: set <html lang> from localStorage before paint
-const setLangScript = `(function(){try{var l=localStorage.getItem('topreyting_lang');if(l==='uz'||l==='ru')document.documentElement.lang=l;}catch(e){}})();`;
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -29,28 +24,6 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
-  keywords: [...site.keywords],
-  authors: [{ name: site.author }],
-  creator: site.author,
-  publisher: site.name,
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    locale: site.locale,
-    url: site.url,
-    siteName: site.name,
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-    // og:image auto-generated from src/app/opengraph-image.png
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: site.name,
-    description: site.description,
-    // twitter:image auto-generated from src/app/opengraph-image.png
-  },
   robots: {
     index: true,
     follow: true,
@@ -64,24 +37,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const h = await headers();
+  const headerLocale = h.get("x-locale");
+  const lang: Locale = isLocale(headerLocale) ? headerLocale : defaultLocale;
+
   return (
-    <html
-      lang={site.lang}
-      suppressHydrationWarning
-      className={`${inter.variable} h-full antialiased`}
-    >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: setLangScript }} />
-      </head>
-      <body className="min-h-full flex flex-col font-sans">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
-      </body>
+    <html lang={lang} className={`${inter.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }

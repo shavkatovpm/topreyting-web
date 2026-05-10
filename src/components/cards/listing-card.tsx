@@ -6,17 +6,20 @@ import { cn } from "@/lib/utils";
 import type { Listing } from "@/data/listings";
 import { getCity } from "@/data/cities";
 import { getCategory } from "@/data/categories";
+import { getDictionary, type Locale } from "@/i18n";
 
 type Props = {
   listing: Listing;
+  lang: Locale;
   showRank?: boolean;
   className?: string;
 };
 
-export function ListingCard({ listing, showRank, className }: Props) {
+export function ListingCard({ listing, lang, showRank, className }: Props) {
   const city = getCity(listing.city);
   const category = getCategory(listing.category);
-  const href = `/${listing.category}/${listing.city}/${listing.slug}`;
+  const href = `/${lang}/${listing.category}/${listing.city}/${listing.slug}`;
+  const t = getDictionary(lang);
 
   return (
     <article
@@ -46,7 +49,7 @@ export function ListingCard({ listing, showRank, className }: Props) {
               <BadgeCheck
                 size={16}
                 className="text-primary shrink-0"
-                aria-label="Tasdiqlangan"
+                aria-label={t.listing.verified}
               />
             )}
           </div>

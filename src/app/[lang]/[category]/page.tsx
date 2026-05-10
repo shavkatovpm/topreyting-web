@@ -9,17 +9,24 @@ import { ListingCard } from "@/components/cards/listing-card";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
+import { locales, isLocale, type Locale } from "@/i18n";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return categories.map((c) => ({ category: c.slug }));
+  const params: { lang: string; category: string }[] = [];
+  for (const lang of locales) {
+    for (const c of categories) {
+      params.push({ lang, category: c.slug });
+    }
+  }
+  return params;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string }>;
+  params: Promise<{ lang: string; category: string }>;
 }): Promise<Metadata> {
   const { category: slug } = await params;
   const category = getCategory(slug);
@@ -41,9 +48,11 @@ export async function generateMetadata({
 export default async function CategoryPage({
   params,
 }: {
-  params: Promise<{ category: string }>;
+  params: Promise<{ lang: string; category: string }>;
 }) {
-  const { category: slug } = await params;
+  const { lang, category: slug } = await params;
+  if (!isLocale(lang)) notFound();
+  const locale: Locale = lang;
   const category = getCategory(slug);
   if (!category) notFound();
 
@@ -55,7 +64,7 @@ export default async function CategoryPage({
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm">
         <ol className="flex items-center gap-1.5 text-muted-foreground">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href={`/${locale}`} className="hover:text-foreground">
               <span data-lang="uz">Bosh sahifa</span>
               <span data-lang="ru">Главная</span>
             </Link>
@@ -95,7 +104,7 @@ export default async function CategoryPage({
       <section className="container-page py-10">
         <div className="flex flex-wrap gap-2 mb-8">
           <Link
-            href={`/${slug}`}
+            href={`/${locale}/${slug}`}
             className="rounded-full border border-primary bg-primary/10 text-primary px-3 py-1 text-sm font-medium inline-flex items-center gap-1"
           >
             <MapPin size={12} />
@@ -105,7 +114,7 @@ export default async function CategoryPage({
           {cities.slice(0, 8).map((c) => (
             <Link
               key={c.slug}
-              href={`/${slug}/${c.slug}`}
+              href={`/${locale}/${slug}/${c.slug}`}
               className="rounded-full border border-border bg-background hover:bg-secondary px-3 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
             >
               <MapPin size={12} />
@@ -125,7 +134,7 @@ export default async function CategoryPage({
                 В этой категории пока нет записей.
               </span>
             </p>
-            <Link href="/qoshish" className="text-primary hover:underline text-sm">
+            <Link href={`/${locale}/qoshish`} className="text-primary hover:underline text-sm">
               <span data-lang="uz">Birinchi bo&apos;lib qo&apos;shing →</span>
               <span data-lang="ru">Добавьте первым →</span>
             </Link>
@@ -133,7 +142,7 @@ export default async function CategoryPage({
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {listings.map((l) => (
-              <ListingCard key={l.slug} listing={l} showRank />
+              <ListingCard key={l.slug} listing={l} showRank lang={locale} />
             ))}
           </div>
         )}

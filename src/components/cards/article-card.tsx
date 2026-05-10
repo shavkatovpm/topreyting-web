@@ -1,13 +1,20 @@
 import Link from "next/link";
 import { Clock, Calendar } from "lucide-react";
 import type { Article } from "@/lib/articles";
+import { getDictionary, type Locale } from "@/i18n";
 
-export function ArticleCard({ article }: { article: Article }) {
-  const date = new Date(article.publishedAt).toLocaleDateString("uz-UZ", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+export function ArticleCard({
+  article,
+  lang,
+}: {
+  article: Article;
+  lang: Locale;
+}) {
+  const t = getDictionary(lang);
+  const date = new Date(article.publishedAt).toLocaleDateString(
+    lang === "ru" ? "ru-RU" : "uz-UZ",
+    { day: "numeric", month: "long", year: "numeric" }
+  );
 
   return (
     <article className="group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all hover:border-primary/40 hover:shadow-md">
@@ -27,13 +34,14 @@ export function ArticleCard({ article }: { article: Article }) {
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock size={12} />
-            {article.readingTimeMinutes}{" "}
-            <span data-lang="uz">daq.</span>
-            <span data-lang="ru">мин</span>
+            {article.readingTimeMinutes} {t.common.minShort}
           </span>
         </div>
         <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">
-          <Link href={`/maqolalar/${article.slug}`} className="hover:text-primary transition-colors">
+          <Link
+            href={`/${lang}/maqolalar/${article.slug}`}
+            className="hover:text-primary transition-colors"
+          >
             <span className="absolute inset-0" aria-hidden />
             {article.title}
           </Link>
@@ -41,19 +49,7 @@ export function ArticleCard({ article }: { article: Article }) {
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
           {article.description}
         </p>
-        {article.author ? (
-          <div className="mt-auto flex items-center gap-2 pt-3 border-t border-border">
-            <div className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
-              {article.author.name.charAt(0)}
-            </div>
-            <div className="text-xs">
-              <p className="font-medium leading-tight">{article.author.name}</p>
-              <p className="text-muted-foreground leading-tight">{article.author.role}</p>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-auto pt-3 border-t border-border" />
-        )}
+        <div className="mt-auto pt-3 border-t border-border" />
       </div>
     </article>
   );

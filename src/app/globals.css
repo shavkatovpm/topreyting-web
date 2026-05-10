@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Language switching — both UZ and RU rendered, CSS shows active one */
+/* Language switching for legacy dual-span elements (some pages still use this pattern) */
 [data-lang] { display: contents; }
 html[lang="uz"] [data-lang="ru"],
 html[lang="ru"] [data-lang="uz"] { display: none; }

@@ -8,7 +8,15 @@ import { cn } from "@/lib/utils";
 
 const ANIM_MS = 280;
 
-export function MobileMenu({ children }: { children: ReactNode }) {
+export function MobileMenu({
+  children,
+  menuLabel = "Menyu",
+  closeLabel = "Yopish",
+}: {
+  children: ReactNode;
+  menuLabel?: string;
+  closeLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [rendered, setRendered] = useState(false);
   const [show, setShow] = useState(false);
@@ -65,7 +73,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
       <button
         type="button"
         onClick={() => setOpen(false)}
-        aria-label="Yopish"
+        aria-label={closeLabel}
         className={cn(
           "absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300 ease-out",
           show ? "opacity-100" : "opacity-0",
@@ -79,20 +87,19 @@ export function MobileMenu({ children }: { children: ReactNode }) {
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <span className="font-bold text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            <span data-lang="uz">Menyu</span>
-            <span data-lang="ru">Меню</span>
+            {menuLabel}
           </span>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Yopish"
+            aria-label={closeLabel}
             className="grid h-9 w-9 place-items-center rounded-md hover:bg-secondary transition-colors"
           >
             <X size={18} />
           </button>
         </div>
         <nav
-          aria-label="Mobil navigatsiya"
+          aria-label={menuLabel}
           className="flex-1 overflow-y-auto p-4"
         >
           {children}
@@ -106,7 +113,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Menyuni ochish"
+        aria-label={menuLabel}
         className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border hover:bg-secondary transition-colors"
       >
         <Menu size={18} />

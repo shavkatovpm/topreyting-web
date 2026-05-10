@@ -1,55 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { locales, type Locale } from "@/i18n/config";
 
-const STORAGE_KEY = "topreyting_lang";
+export function LanguageToggle({
+  currentLang,
+  className,
+}: {
+  currentLang: Locale;
+  className?: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
 
-type Lang = "uz" | "ru";
+  const next: Locale = currentLang === "uz" ? "ru" : "uz";
 
-export function LanguageToggle({ className }: { className?: string }) {
-  const [lang, setLang] = useState<Lang>("uz");
-  const [hydrated, setHydrated] = useState(false);
+  const handleClick = () => {
+    // Replace the first segment (current locale) with the new locale
+    const segments = pathname.split("/");
+    if (segments[1] && (locales as readonly string[]).includes(segments[1])) {
+      segments[1] = next;
+    } else {
+      segments.splice(1, 0, next);
+    }
+    const target = segments.join("/") || `/${next}`;
 
-  useEffect(() => {
-    const saved = (localStorage.getItem(STORAGE_KEY) as Lang | null) ?? "uz";
-    setLang(saved);
-    document.documentElement.lang = saved;
-    setHydrated(true);
-  }, []);
-
-  const toggle = () => {
-    const next: Lang = lang === "uz" ? "ru" : "uz";
-    setLang(next);
-    document.documentElement.lang = next;
-    localStorage.setItem(STORAGE_KEY, next);
+    // Persist via cookie so middleware respects future visits
+    document.cookie = `topreyting_lang=${next};path=/;max-age=31536000;samesite=lax`;
+    router.push(target);
+    router.refresh();
   };
-
-  if (!hydrated) {
-    return (
-      <span
-        aria-hidden
-        className={cn(
-          "inline-flex h-10 w-[64px] items-center justify-center rounded-md border border-border bg-background",
-          className
-        )}
-      />
-    );
-  }
 
   return (
     <button
       type="button"
-      onClick={toggle}
-      aria-label={lang === "uz" ? "Switch to Russian" : "O'zbekchaga o'tish"}
+      onClick={handleClick}
+      aria-label={
+        next === "ru" ? "Switch to Russian" : "O'zbekchaga o'tish"
+      }
       className={cn(
         "inline-flex h-10 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-semibold uppercase tracking-wider hover:bg-secondary transition-colors",
         className
       )}
     >
       <Languages size={14} className="text-primary" />
-      <span>{lang}</span>
+      <span>{currentLang}</span>
     </button>
   );
 }

@@ -27,20 +27,24 @@ import {
 } from "@/lib/jsonld";
 import { site } from "@/lib/site";
 
+import { locales, isLocale, type Locale } from "@/i18n";
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return listings.map((l) => ({
-    category: l.category,
-    city: l.city,
-    slug: l.slug,
-  }));
+  const params: { lang: string; category: string; city: string; slug: string }[] = [];
+  for (const lang of locales) {
+    for (const l of listings) {
+      params.push({ lang, category: l.category, city: l.city, slug: l.slug });
+    }
+  }
+  return params;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string; city: string; slug: string }>;
+  params: Promise<{ lang: string; category: string; city: string; slug: string }>;
 }): Promise<Metadata> {
   const { category: catSlug, city: citySlug, slug } = await params;
   const listing = getListing(slug);
@@ -67,9 +71,11 @@ export async function generateMetadata({
 export default async function ListingPage({
   params,
 }: {
-  params: Promise<{ category: string; city: string; slug: string }>;
+  params: Promise<{ lang: string; category: string; city: string; slug: string }>;
 }) {
-  const { category: catSlug, city: citySlug, slug } = await params;
+  const { lang, category: catSlug, city: citySlug, slug } = await params;
+  if (!isLocale(lang)) notFound();
+  const locale: Locale = lang;
   const listing = getListing(slug);
   const category = getCategory(catSlug);
   const city = getCity(citySlug);
@@ -86,20 +92,20 @@ export default async function ListingPage({
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm">
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href={`/${locale}`} className="hover:text-foreground">
               <span data-lang="uz">Bosh sahifa</span>
               <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
           <li>
-            <Link href={`/${catSlug}`} className="hover:text-foreground">
+            <Link href={`/${locale}/${catSlug}`} className="hover:text-foreground">
               {category.namePlural}
             </Link>
           </li>
           <ChevronRight size={14} />
           <li>
-            <Link href={`/${catSlug}/${citySlug}`} className="hover:text-foreground">
+            <Link href={`/${locale}/${catSlug}/${citySlug}`} className="hover:text-foreground">
               {city.name}
             </Link>
           </li>
@@ -346,7 +352,7 @@ export default async function ListingPage({
                 </span>
               </p>
               <Link
-                href="/qoshish"
+                href={`/${locale}/qoshish`}
                 className="block text-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 <span data-lang="uz">Tasdiqlash</span>
@@ -366,7 +372,7 @@ export default async function ListingPage({
             </h2>
             <div className="grid gap-4 md:grid-cols-3">
               {related.map((l) => (
-                <ListingCard key={l.slug} listing={l} />
+                <ListingCard key={l.slug} listing={l} lang={locale} />
               ))}
             </div>
           </div>

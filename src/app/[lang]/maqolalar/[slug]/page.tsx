@@ -12,16 +12,24 @@ import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
 import { getCategory } from "@/data/categories";
 
+import { isLocale, locales, type Locale } from "@/i18n";
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getAllArticleSlugs().map((slug) => ({ slug }));
+  const params: { lang: string; slug: string }[] = [];
+  for (const lang of locales) {
+    for (const slug of getAllArticleSlugs()) {
+      params.push({ lang, slug });
+    }
+  }
+  return params;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ lang: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const article = getArticleBySlug(slug);
@@ -51,9 +59,11 @@ export async function generateMetadata({
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ lang: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { lang, slug } = await params;
+  if (!isLocale(lang)) notFound();
+  const locale: Locale = lang;
   const article = getArticleBySlug(slug);
 
   if (!article) notFound();
@@ -74,14 +84,14 @@ export default async function ArticlePage({
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm">
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href={`/${locale}`} className="hover:text-foreground">
               <span data-lang="uz">Bosh sahifa</span>
               <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
           <li>
-            <Link href="/maqolalar" className="hover:text-foreground">
+            <Link href={`/${locale}/maqolalar`} className="hover:text-foreground">
               <span data-lang="uz">Maqolalar</span>
               <span data-lang="ru">Статьи</span>
             </Link>
@@ -95,7 +105,7 @@ export default async function ArticlePage({
         <div className="max-w-3xl mx-auto">
           {category && (
             <Link
-              href={`/${category.slug}`}
+              href={`/${locale}/${category.slug}`}
               className="text-sm text-primary inline-flex items-center gap-1 mb-4 hover:gap-2 transition-all"
             >
               <ArrowLeft size={14} />
@@ -194,7 +204,7 @@ export default async function ArticlePage({
             </h2>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {related.map((a) => (
-                <ArticleCard key={a.slug} article={a} />
+                <ArticleCard key={a.slug} article={a} lang={locale} />
               ))}
             </div>
           </div>

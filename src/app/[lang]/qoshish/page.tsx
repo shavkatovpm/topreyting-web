@@ -23,13 +23,18 @@ const benefits = [
   { uz: "Hisobotlar", ru: "Отчёты" },
 ];
 
-export default function AddListingPage() {
+export default async function AddListingPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
   return (
     <>
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm">
         <ol className="flex items-center gap-1.5 text-muted-foreground">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href={`/${lang}`} className="hover:text-foreground">
               <span data-lang="uz">Bosh sahifa</span>
               <span data-lang="ru">Главная</span>
             </Link>

@@ -6,34 +6,40 @@ import { MobileMenu } from "./mobile-menu";
 import { LanguageToggle } from "@/components/language-toggle";
 import { getActiveCategories } from "@/data/categories";
 import { getAllArticles } from "@/lib/articles";
+import { getDictionary, type Locale , localeHref} from "@/i18n";
 import { cn } from "@/lib/utils";
 
-const pageLinks: { href: string; uz: string; ru: string }[] = [
-  { href: "/maqolalar", uz: "Maqolalar", ru: "Статьи" },
-  { href: "/qidiruv", uz: "Qidiruv", ru: "Поиск" },
-  { href: "/biz-haqimizda", uz: "Biz haqimizda", ru: "О нас" },
-];
-
-export function Header() {
+export function Header({ lang }: { lang: Locale }) {
+  const t = getDictionary(lang);
   const articleCats = Array.from(new Set(getAllArticles().map((a) => a.category)));
   const activeCategories = getActiveCategories(articleCats);
+
+  const pageLinks = [
+    { href: localeHref(lang, "/maqolalar"), label: t.common.articles },
+    { href: localeHref(lang, "/qidiruv"), label: t.common.search },
+    { href: localeHref(lang, "/biz-haqimizda"), label: t.common.aboutUs },
+  ];
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur-md">
       <div className="container-page flex h-16 items-center gap-4">
-        <Logo />
+        <Logo lang={lang} />
 
         <nav
-          aria-label="Asosiy navigatsiya"
+          aria-label={t.common.menu}
           className="hidden md:flex items-center gap-1 text-sm"
         >
-          <CategoriesDropdown isEmpty={activeCategories.length === 0}>
+          <CategoriesDropdown
+            label={t.common.categories}
+            emptyText={t.common.categoriesSoon}
+            isEmpty={activeCategories.length === 0}
+          >
             {activeCategories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <Link
                   key={cat.slug}
-                  href={`/${cat.slug}`}
+                  href={localeHref(lang, `/${cat.slug}`)}
                   role="menuitem"
                   className="flex items-center gap-3 rounded-lg p-2.5 hover:bg-secondary transition-colors"
                 >
@@ -58,46 +64,42 @@ export function Header() {
             })}
           </CategoriesDropdown>
           <Link
-            href="/maqolalar"
+            href={localeHref(lang, "/maqolalar")}
             className="px-3 py-2 rounded-md text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors font-medium"
           >
-            <span data-lang="uz">Maqolalar</span>
-            <span data-lang="ru">Статьи</span>
+            {t.common.articles}
           </Link>
           <Link
-            href="/biz-haqimizda"
+            href={localeHref(lang, "/biz-haqimizda")}
             className="px-3 py-2 rounded-md text-foreground/80 hover:text-foreground hover:bg-secondary transition-colors font-medium"
           >
-            <span data-lang="uz">Biz haqimizda</span>
-            <span data-lang="ru">О нас</span>
+            {t.common.aboutUs}
           </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
           <Link
-            href="/qidiruv"
-            aria-label="Qidiruv"
+            href={localeHref(lang, "/qidiruv")}
+            aria-label={t.common.search}
             className="hidden md:inline-flex h-10 items-center gap-2 rounded-md border border-border bg-background px-3 text-sm text-muted-foreground hover:bg-secondary transition-colors min-w-[180px]"
           >
             <Search size={16} />
-            <span data-lang="uz">Qidirish...</span>
-            <span data-lang="ru">Поиск...</span>
+            <span>{t.common.searchPlaceholder}</span>
           </Link>
 
           <Link
-            href="/qidiruv"
-            aria-label="Qidiruv"
+            href={localeHref(lang, "/qidiruv")}
+            aria-label={t.common.search}
             className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border hover:bg-secondary transition-colors"
           >
             <Search size={18} />
           </Link>
 
-          <LanguageToggle className="hidden md:inline-flex" />
+          <LanguageToggle currentLang={lang} className="hidden md:inline-flex" />
 
-          <MobileMenu>
+          <MobileMenu menuLabel={t.common.menu} closeLabel={t.common.close}>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-              <span data-lang="uz">Kategoriyalar</span>
-              <span data-lang="ru">Категории</span>
+              {t.common.categories}
             </p>
             {activeCategories.length > 0 ? (
               <ul className="space-y-1 mb-6">
@@ -106,7 +108,7 @@ export function Header() {
                   return (
                     <li key={cat.slug}>
                       <Link
-                        href={`/${cat.slug}`}
+                        href={localeHref(lang, `/${cat.slug}`)}
                         className="flex items-center gap-3 rounded-lg p-2.5 hover:bg-secondary transition-colors"
                       >
                         <div
@@ -125,14 +127,12 @@ export function Header() {
               </ul>
             ) : (
               <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground mb-6">
-                <span data-lang="uz">Tez orada kategoriyalar qo&apos;shiladi</span>
-                <span data-lang="ru">Скоро будут добавлены категории</span>
+                {t.common.categoriesSoon}
               </div>
             )}
 
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-              <span data-lang="uz">Sahifalar</span>
-              <span data-lang="ru">Страницы</span>
+              {t.common.pages}
             </p>
             <ul className="space-y-1">
               {pageLinks.map((it) => (
@@ -141,8 +141,7 @@ export function Header() {
                     href={it.href}
                     className="block rounded-lg px-3 py-2.5 hover:bg-secondary transition-colors font-medium"
                   >
-                    <span data-lang="uz">{it.uz}</span>
-                    <span data-lang="ru">{it.ru}</span>
+                    {it.label}
                   </Link>
                 </li>
               ))}
@@ -150,10 +149,9 @@ export function Header() {
 
             <div className="mt-6 pt-6 border-t border-border">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-                <span data-lang="uz">Til</span>
-                <span data-lang="ru">Язык</span>
+                {t.common.language}
               </p>
-              <LanguageToggle />
+              <LanguageToggle currentLang={lang} />
             </div>
           </MobileMenu>
         </div>

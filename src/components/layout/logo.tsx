@@ -2,19 +2,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 export function Logo({
   className,
   withText = true,
+  lang = defaultLocale,
 }: {
   className?: string;
   withText?: boolean;
+  lang?: Locale;
 }) {
   return (
     <Link
-      href="/"
+      href={`/${lang}`}
       aria-label={withText ? undefined : site.name}
-      className={cn("inline-flex items-center gap-2.5", className)}
+      className={cn("inline-flex items-end gap-2.5", className)}
     >
       <Image
         src="/logo.png"

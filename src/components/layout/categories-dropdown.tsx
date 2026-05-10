@@ -7,9 +7,13 @@ import { cn } from "@/lib/utils";
 export function CategoriesDropdown({
   children,
   isEmpty,
+  label,
+  emptyText,
 }: {
   children: ReactNode;
   isEmpty?: boolean;
+  label: string;
+  emptyText: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,7 +48,7 @@ export function CategoriesDropdown({
             : "text-foreground/80 hover:text-foreground hover:bg-secondary"
         )}
       >
-        Kategoriyalar
+        {label}
         <ChevronDown
           size={14}
           className={cn("transition-transform", open && "rotate-180")}
@@ -59,11 +63,8 @@ export function CategoriesDropdown({
         >
           {isEmpty ? (
             <div className="p-6 text-center">
-              <p className="text-sm font-medium">Kategoriyalar tez orada</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Hozircha maqolalar ustida ishlayapmiz. Yangi kategoriyalar tayyor
-                bo&apos;lganda shu yerda paydo bo&apos;ladi.
-              </p>
+              <p className="text-sm font-medium">{label}</p>
+              <p className="text-xs text-muted-foreground mt-1">{emptyText}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">{children}</div>
