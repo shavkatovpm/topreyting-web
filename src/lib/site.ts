@@ -23,7 +23,7 @@ export const site = {
     telegram: "https://t.me/topreyting",
     instagram: "https://instagram.com/topreyting.uz",
   },
-  ogImage: "/og-default.png",
+  ogImage: "/logo.png",
 } as const;
 
 export type SiteConfig = typeof site;

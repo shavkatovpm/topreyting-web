@@ -40,13 +40,13 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
-    images: [{ url: site.ogImage, width: 1200, height: 630, alt: site.name }],
+    // og:image auto-generated from src/app/opengraph-image.png
   },
   twitter: {
     card: "summary_large_image",
     title: site.name,
     description: site.description,
-    images: [site.ogImage],
+    // twitter:image auto-generated from src/app/opengraph-image.png
   },
   robots: {
     index: true,
