@@ -14,10 +14,20 @@ export function Hero() {
             />
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05]">
-                O&apos;zbekistondagi eng yaxshilarni topadigan platforma.
+                <span data-lang="uz">
+                  O&apos;zbekistondagi eng yaxshilarni topadigan platforma.
+                </span>
+                <span data-lang="ru">
+                  Платформа, находящая лучших в Узбекистане.
+                </span>
               </h1>
               <p className="mt-3 md:mt-4 text-sm md:text-base opacity-90 max-w-md">
-                Mustaqil tahlillar, qo&apos;llanmalar va reytinglar.
+                <span data-lang="uz">
+                  Mustaqil tahlillar, qo&apos;llanmalar va reytinglar.
+                </span>
+                <span data-lang="ru">
+                  Независимые анализы, руководства и рейтинги.
+                </span>
               </p>
             </div>
             <Sparkles className="self-end text-white size-9 md:size-14" />
@@ -30,10 +40,12 @@ export function Hero() {
           >
             <div>
               <p className="text-base md:text-2xl opacity-80 mb-1.5 md:mb-2">
-                Maqolalar
+                <span data-lang="uz">Maqolalar</span>
+                <span data-lang="ru">Статьи</span>
               </p>
               <p className="font-bold text-2xl md:text-4xl leading-tight inline-flex items-center gap-1.5 md:gap-2">
-                Hammasi
+                <span data-lang="uz">Hammasi</span>
+                <span data-lang="ru">Все</span>
                 <ArrowUpRight className="size-5 md:size-8 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
               </p>
             </div>
@@ -47,24 +59,32 @@ export function Hero() {
           >
             <div>
               <p className="text-base md:text-2xl opacity-80 mb-1.5 md:mb-2">
-                Qidiruv
+                <span data-lang="uz">Qidiruv</span>
+                <span data-lang="ru">Поиск</span>
               </p>
               <p className="font-bold text-2xl md:text-4xl leading-tight inline-flex items-center gap-1.5 md:gap-2">
-                Boshlash
+                <span data-lang="uz">Boshlash</span>
+                <span data-lang="ru">Начать</span>
                 <ArrowUpRight className="size-5 md:size-8 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
               </p>
             </div>
             <Search className="self-end text-white size-7 md:size-10" />
           </Link>
 
-          {/* Mission — gold (full bottom-right row) */}
+          {/* Mission — gold */}
           <div className="anim-card col-span-4 md:col-span-2 row-span-1 rounded-3xl bg-[oklch(0.85_0.16_85)] text-white p-5 md:p-6 flex flex-col justify-between">
             <p className="font-bold leading-[1.05] max-w-3xl">
               <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-                Mustaqil reyting
+                <span data-lang="uz">Mustaqil reyting</span>
+                <span data-lang="ru">Независимый рейтинг</span>
               </span>
               <span className="block text-base md:text-2xl font-medium opacity-90 mt-1.5 md:mt-2">
-                yolg&apos;onsiz, manbalardan tekshirilgan
+                <span data-lang="uz">
+                  yolg&apos;onsiz, manbalardan tekshirilgan
+                </span>
+                <span data-lang="ru">
+                  без лжи, проверено по источникам
+                </span>
               </span>
             </p>
             <Trophy className="self-end text-white size-9 md:size-14" />

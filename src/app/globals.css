@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Language switching — both UZ and RU rendered, CSS shows active one */
+[data-lang] { display: contents; }
+html[lang="uz"] [data-lang="ru"],
+html[lang="ru"] [data-lang="uz"] { display: none; }
+
 /* Hero card entry — Breathe animation */
 .anim-card {
   opacity: 0;

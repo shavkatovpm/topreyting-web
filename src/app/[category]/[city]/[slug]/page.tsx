@@ -87,7 +87,8 @@ export default async function ListingPage({
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
@@ -137,20 +138,29 @@ export default async function ListingPage({
                       TOP-{listing.rank}
                     </Badge>
                   )}
-                  {listing.featured && <Badge variant="primary">Tavsiya etiladi</Badge>}
+                  {listing.featured && (
+                    <Badge variant="primary">
+                      <span data-lang="uz">Tavsiya etiladi</span>
+                      <span data-lang="ru">Рекомендуется</span>
+                    </Badge>
+                  )}
                 </div>
               </div>
 
               <div className="mt-4 flex items-center gap-3 flex-wrap">
                 <StarRating rating={listing.rating} reviewCount={listing.reviewCount} size="lg" />
                 <span className="text-sm text-muted-foreground">
-                  {listing.reviewCount} ta sharh asosida
+                  <span data-lang="uz">{listing.reviewCount} ta sharh asosida</span>
+                  <span data-lang="ru">на основе {listing.reviewCount} отзывов</span>
                 </span>
               </div>
             </header>
 
             <section className="mt-8">
-              <h2 className="text-xl font-semibold mb-3">Tavsif</h2>
+              <h2 className="text-xl font-semibold mb-3">
+                <span data-lang="uz">Tavsif</span>
+                <span data-lang="ru">Описание</span>
+              </h2>
               <div className="prose-article max-w-none">
                 {listing.description.split("\n\n").map((para, i) => (
                   <p key={i}>{para}</p>
@@ -159,7 +169,10 @@ export default async function ListingPage({
             </section>
 
             <section className="mt-10">
-              <h2 className="text-xl font-semibold mb-4">Xizmatlar</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                <span data-lang="uz">Xizmatlar</span>
+                <span data-lang="ru">Услуги</span>
+              </h2>
               <div className="grid sm:grid-cols-2 gap-2">
                 {listing.services.map((s) => (
                   <div
@@ -174,7 +187,10 @@ export default async function ListingPage({
             </section>
 
             <section className="mt-10">
-              <h2 className="text-xl font-semibold mb-4">Afzalliklari</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                <span data-lang="uz">Afzalliklari</span>
+                <span data-lang="ru">Преимущества</span>
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {listing.features.map((f) => (
                   <Badge key={f} variant="outline" className="py-1.5">
@@ -186,7 +202,10 @@ export default async function ListingPage({
 
             {listing.faqs.length > 0 && (
               <section className="mt-12 border-t border-border pt-10" id="savol-javob">
-                <h2 className="text-2xl font-bold tracking-tight mb-6">Savol-javoblar</h2>
+                <h2 className="text-2xl font-bold tracking-tight mb-6">
+                  <span data-lang="uz">Savol-javoblar</span>
+                  <span data-lang="ru">Вопросы и ответы</span>
+                </h2>
                 <div className="space-y-3">
                   {listing.faqs.map((faq, i) => (
                     <details
@@ -209,28 +228,32 @@ export default async function ListingPage({
             <section className="mt-12 border-t border-border pt-10" id="sharhlar">
               <div className="flex items-center justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight">Sharhlar</h2>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    <span data-lang="uz">Sharhlar</span>
+                    <span data-lang="ru">Отзывы</span>
+                  </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {listing.reviewCount} ta sharh
+                    <span data-lang="uz">{listing.reviewCount} ta sharh</span>
+                    <span data-lang="ru">отзывов: {listing.reviewCount}</span>
                   </p>
                 </div>
                 <button
                   type="button"
                   className="rounded-md border border-border bg-background hover:bg-secondary px-4 py-2 text-sm font-medium transition-colors"
                   disabled
-                  title="Tez orada"
                 >
-                  Sharh qoldirish
+                  <span data-lang="uz">Sharh qoldirish</span>
+                  <span data-lang="ru">Оставить отзыв</span>
                 </button>
               </div>
               <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-8 text-center">
                 <p className="text-muted-foreground">
-                  Sharhlar tizimi tez orada ishga tushadi. Hozircha eng yaxshi
-                  joylarni{" "}
-                  <Link href="/maqolalar" className="text-primary hover:underline">
-                    maqolalarimizdan
-                  </Link>{" "}
-                  o&apos;qishingiz mumkin.
+                  <span data-lang="uz">
+                    Sharhlar tizimi tez orada ishga tushadi.
+                  </span>
+                  <span data-lang="ru">
+                    Система отзывов скоро запустится.
+                  </span>
                 </p>
               </div>
             </section>
@@ -239,7 +262,10 @@ export default async function ListingPage({
           {/* SIDEBAR */}
           <aside className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-5">
-              <h3 className="font-semibold mb-4">Kontakt ma&apos;lumotlari</h3>
+              <h3 className="font-semibold mb-4">
+                <span data-lang="uz">Kontakt ma&apos;lumotlari</span>
+                <span data-lang="ru">Контактные данные</span>
+              </h3>
               <div className="space-y-3 text-sm">
                 {listing.address && (
                   <div className="flex gap-2">
@@ -286,7 +312,8 @@ export default async function ListingPage({
                   <div className="flex gap-2">
                     <Calendar size={16} className="text-primary shrink-0 mt-0.5" />
                     <span className="text-muted-foreground">
-                      {listing.yearFounded}-yildan beri
+                      <span data-lang="uz">{listing.yearFounded}-yildan beri</span>
+                      <span data-lang="ru">с {listing.yearFounded} года</span>
                     </span>
                   </div>
                 )}
@@ -295,22 +322,35 @@ export default async function ListingPage({
 
             {listing.priceRange && (
               <div className="rounded-xl border border-border bg-card p-5">
-                <h3 className="font-semibold mb-2 text-sm">Narxlar</h3>
+                <h3 className="font-semibold mb-2 text-sm">
+                  <span data-lang="uz">Narxlar</span>
+                  <span data-lang="ru">Цены</span>
+                </h3>
                 <p className="text-lg font-semibold text-primary">{listing.priceRange}</p>
               </div>
             )}
 
             <div className="rounded-xl border border-border bg-gradient-to-br from-primary/5 to-gold/5 p-5">
-              <h3 className="font-semibold mb-2 text-sm">Bu siznikingmi?</h3>
+              <h3 className="font-semibold mb-2 text-sm">
+                <span data-lang="uz">Bu siznikingmi?</span>
+                <span data-lang="ru">Это ваше?</span>
+              </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Sizning bizneslaringizni tasdiqlash va ma&apos;lumotlarni boshqarish uchun
-                ro&apos;yxatdan o&apos;ting.
+                <span data-lang="uz">
+                  Sizning bizneslaringizni tasdiqlash va ma&apos;lumotlarni
+                  boshqarish uchun ro&apos;yxatdan o&apos;ting.
+                </span>
+                <span data-lang="ru">
+                  Зарегистрируйтесь, чтобы подтвердить свой бизнес и управлять
+                  данными.
+                </span>
               </p>
               <Link
                 href="/qoshish"
                 className="block text-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Tasdiqlash
+                <span data-lang="uz">Tasdiqlash</span>
+                <span data-lang="ru">Подтвердить</span>
               </Link>
             </div>
           </aside>
@@ -321,7 +361,8 @@ export default async function ListingPage({
         <section className="border-t border-border bg-secondary/30 mt-16">
           <div className="container-page py-12">
             <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-6">
-              O&apos;xshashlar — {category.namePlural}
+              <span data-lang="uz">O&apos;xshashlar — {category.namePlural}</span>
+              <span data-lang="ru">Похожие — {category.namePlural}</span>
             </h2>
             <div className="grid gap-4 md:grid-cols-3">
               {related.map((l) => (

@@ -27,7 +27,9 @@ export function ArticleCard({ article }: { article: Article }) {
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock size={12} />
-            {article.readingTimeMinutes} daq.
+            {article.readingTimeMinutes}{" "}
+            <span data-lang="uz">daq.</span>
+            <span data-lang="ru">мин</span>
           </span>
         </div>
         <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">

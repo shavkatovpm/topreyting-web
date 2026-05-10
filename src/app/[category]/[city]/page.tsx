@@ -69,7 +69,8 @@ export default async function CategoryCityPage({
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
@@ -85,11 +86,24 @@ export default async function CategoryCityPage({
 
       <header className="container-page py-10 border-b border-border">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-3xl">
-          {city.name} shahridagi eng yaxshi {category.namePlural.toLowerCase()}
+          <span data-lang="uz">
+            {city.name} shahridagi eng yaxshi {category.namePlural.toLowerCase()}
+          </span>
+          <span data-lang="ru">
+            Лучшие {category.namePlural.toLowerCase()} в городе {city.name}
+          </span>
         </h1>
         <p className="mt-3 text-muted-foreground max-w-3xl">
-          {city.name} ({city.region}) dagi {category.namePlural.toLowerCase()} reytingi.
-          Bemorlar/mijozlar baholari va sharhlari asosida tartibga solingan.
+          <span data-lang="uz">
+            {city.name} ({city.region}) dagi {category.namePlural.toLowerCase()}{" "}
+            reytingi. Bemorlar/mijozlar baholari va sharhlari asosida tartibga
+            solingan.
+          </span>
+          <span data-lang="ru">
+            Рейтинг {category.namePlural.toLowerCase()} в городе {city.name} (
+            {city.region}). Упорядочено на основе оценок и отзывов
+            пациентов/клиентов.
+          </span>
         </p>
       </header>
 
@@ -98,10 +112,18 @@ export default async function CategoryCityPage({
           <div className="text-center py-20">
             <MapPin size={40} className="mx-auto text-muted-foreground/40 mb-4" />
             <p className="text-muted-foreground mb-2">
-              {city.name}da {category.namePlural.toLowerCase()} hozircha qo&apos;shilmagan.
+              <span data-lang="uz">
+                {city.name}da {category.namePlural.toLowerCase()} hozircha
+                qo&apos;shilmagan.
+              </span>
+              <span data-lang="ru">
+                В городе {city.name} {category.namePlural.toLowerCase()} пока
+                не добавлены.
+              </span>
             </p>
             <Link href="/qoshish" className="text-primary hover:underline text-sm">
-              Birinchi bo&apos;lib qo&apos;shing →
+              <span data-lang="uz">Birinchi bo&apos;lib qo&apos;shing →</span>
+              <span data-lang="ru">Добавьте первым →</span>
             </Link>
           </div>
         ) : (

@@ -4,9 +4,14 @@ import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const ANIM_MS = 280;
 
 export function MobileMenu({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [rendered, setRendered] = useState(false);
+  const [show, setShow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
@@ -19,16 +24,31 @@ export function MobileMenu({ children }: { children: ReactNode }) {
     setOpen(false);
   }, [pathname]);
 
-  // Lock scroll when open
+  // Drive enter/exit animation
   useEffect(() => {
     if (open) {
+      setRendered(true);
+      const r1 = requestAnimationFrame(() => {
+        const r2 = requestAnimationFrame(() => setShow(true));
+        return () => cancelAnimationFrame(r2);
+      });
+      return () => cancelAnimationFrame(r1);
+    }
+    setShow(false);
+    const t = setTimeout(() => setRendered(false), ANIM_MS);
+    return () => clearTimeout(t);
+  }, [open]);
+
+  // Lock scroll while rendered
+  useEffect(() => {
+    if (rendered) {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = original;
       };
     }
-  }, [open]);
+  }, [rendered]);
 
   // Close on Escape
   useEffect(() => {
@@ -46,12 +66,21 @@ export function MobileMenu({ children }: { children: ReactNode }) {
         type="button"
         onClick={() => setOpen(false)}
         aria-label="Yopish"
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm animate-in fade-in"
+        className={cn(
+          "absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300 ease-out",
+          show ? "opacity-100" : "opacity-0",
+        )}
       />
-      <div className="absolute top-0 right-0 h-full w-[85%] max-w-sm bg-background shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+      <div
+        className={cn(
+          "absolute top-0 right-0 h-full w-[85%] max-w-sm bg-background shadow-2xl flex flex-col will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+          show ? "translate-x-0" : "translate-x-full",
+        )}
+      >
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <span className="font-bold text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            Menyu
+            <span data-lang="uz">Menyu</span>
+            <span data-lang="ru">Меню</span>
           </span>
           <button
             type="button"
@@ -83,7 +112,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
         <Menu size={18} />
       </button>
 
-      {open && mounted && createPortal(overlay, document.body)}
+      {rendered && mounted && createPortal(overlay, document.body)}
     </>
   );
 }

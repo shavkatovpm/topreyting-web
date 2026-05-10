@@ -36,16 +36,23 @@ export default async function SearchPage({
         <ol className="flex items-center gap-1.5 text-muted-foreground">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
-          <li className="text-foreground font-medium">Qidiruv</li>
+          <li className="text-foreground font-medium">
+            <span data-lang="uz">Qidiruv</span>
+            <span data-lang="ru">Поиск</span>
+          </li>
         </ol>
       </nav>
 
       <section className="container-page py-12">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Qidiruv</h1>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+          <span data-lang="uz">Qidiruv</span>
+          <span data-lang="ru">Поиск</span>
+        </h1>
 
         <form
           action="/qidiruv"
@@ -60,21 +67,30 @@ export default async function SearchPage({
             name="q"
             defaultValue={q}
             autoFocus
-            placeholder="Tashkilot nomini yoki xizmatni yozing..."
+            placeholder="..."
             className="flex-1 bg-transparent outline-none text-sm"
           />
           <button
             type="submit"
             className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            Qidirish
+            <span data-lang="uz">Qidirish</span>
+            <span data-lang="ru">Найти</span>
           </button>
         </form>
 
         {query && (
           <p className="mt-6 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{q}</span> bo&apos;yicha{" "}
-            <span className="font-medium text-foreground">{results.length}</span> ta natija
+            <span className="font-medium text-foreground">{q}</span>{" "}
+            <span data-lang="uz">
+              bo&apos;yicha{" "}
+              <span className="font-medium text-foreground">{results.length}</span>{" "}
+              ta natija
+            </span>
+            <span data-lang="ru">
+              — найдено{" "}
+              <span className="font-medium text-foreground">{results.length}</span>
+            </span>
           </p>
         )}
 
@@ -88,9 +104,16 @@ export default async function SearchPage({
 
         {query && results.length === 0 && (
           <div className="mt-10 text-center py-12 rounded-xl border border-dashed border-border bg-secondary/30">
-            <p className="text-muted-foreground">Hech narsa topilmadi</p>
-            <Link href="/" className="text-primary hover:underline text-sm mt-2 inline-block">
-              Bosh sahifaga qaytish
+            <p className="text-muted-foreground">
+              <span data-lang="uz">Hech narsa topilmadi</span>
+              <span data-lang="ru">Ничего не найдено</span>
+            </p>
+            <Link
+              href="/"
+              className="text-primary hover:underline text-sm mt-2 inline-block"
+            >
+              <span data-lang="uz">Bosh sahifaga qaytish</span>
+              <span data-lang="ru">Вернуться на главную</span>
             </Link>
           </div>
         )}

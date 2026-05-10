@@ -13,6 +13,9 @@ const inter = Inter({
   display: "swap",
 });
 
+// Anti-FOUC: set <html lang> from localStorage before paint
+const setLangScript = `(function(){try{var l=localStorage.getItem('topreyting_lang');if(l==='uz'||l==='ru')document.documentElement.lang=l;}catch(e){}})();`;
+
 export const viewport: Viewport = {
   themeColor: "#ffffff",
   width: "device-width",
@@ -65,7 +68,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang={site.lang} className={`${inter.variable} h-full antialiased`}>
+    <html
+      lang={site.lang}
+      suppressHydrationWarning
+      className={`${inter.variable} h-full antialiased`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: setLangScript }} />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <Header />
         <main className="flex-1">{children}</main>

@@ -22,10 +22,12 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                So&apos;nggi maqolalar
+                <span data-lang="uz">So&apos;nggi maqolalar</span>
+                <span data-lang="ru">Последние статьи</span>
               </h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Tanlash bo&apos;yicha qo&apos;llanmalar va tahlillar
+                <span data-lang="uz">Tanlash bo&apos;yicha qo&apos;llanmalar va tahlillar</span>
+                <span data-lang="ru">Руководства по выбору и анализы</span>
               </p>
             </div>
             {articles.length > 6 && (
@@ -33,7 +35,8 @@ export default function HomePage() {
                 href="/maqolalar"
                 className="text-sm text-primary inline-flex items-center gap-1 hover:gap-2 transition-all font-medium"
               >
-                Barchasi
+                <span data-lang="uz">Barchasi</span>
+                <span data-lang="ru">Все</span>
                 <ArrowRight size={14} />
               </Link>
             )}
@@ -48,8 +51,14 @@ export default function HomePage() {
         <section className="container-page py-20">
           <div className="text-center max-w-xl mx-auto">
             <p className="text-muted-foreground">
-              Birinchi maqolalar tez orada chiqadi. Yangiliklar uchun bizni Telegram
-              kanalida kuzatib boring.
+              <span data-lang="uz">
+                Birinchi maqolalar tez orada chiqadi. Yangiliklar uchun bizni
+                Telegram kanalida kuzatib boring.
+              </span>
+              <span data-lang="ru">
+                Первые статьи появятся скоро. Следите за нами в Telegram, чтобы
+                узнавать новости.
+              </span>
             </p>
             <a
               href={site.social.telegram}
@@ -57,7 +66,8 @@ export default function HomePage() {
                 buttonVariants({ size: "default", variant: "outline" }) + " mt-4"
               }
             >
-              Telegram kanalga obuna
+              <span data-lang="uz">Telegram kanalga obuna</span>
+              <span data-lang="ru">Подписаться на Telegram-канал</span>
             </a>
           </div>
         </section>
@@ -68,14 +78,27 @@ export default function HomePage() {
         <div className="container-page py-16 md:py-24">
           <div className="max-w-3xl mb-10 md:mb-14">
             <p className="text-xs md:text-sm uppercase tracking-[0.25em] text-primary font-bold mb-3">
-              Biz nima qilamiz
+              <span data-lang="uz">Biz nima qilamiz</span>
+              <span data-lang="ru">Что мы делаем</span>
             </p>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-[1.1]">
-              Top Reyting — O&apos;zbekiston bozori bo&apos;yicha mustaqil tahlillar.
+              <span data-lang="uz">
+                Top Reyting — O&apos;zbekiston bozori bo&apos;yicha mustaqil
+                tahlillar.
+              </span>
+              <span data-lang="ru">
+                Top Reyting — независимые анализы рынка Узбекистана.
+              </span>
             </h2>
             <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-2xl">
-              Klinikalar, agentliklar, IT, bizneslar va boshqa sohalar haqida
-              tekshirilgan ma&apos;lumotlarga asoslangan qo&apos;llanmalar.
+              <span data-lang="uz">
+                Klinikalar, agentliklar, IT, bizneslar va boshqa sohalar haqida
+                tekshirilgan ma&apos;lumotlarga asoslangan qo&apos;llanmalar.
+              </span>
+              <span data-lang="ru">
+                Руководства, основанные на проверенных данных о клиниках,
+                агентствах, IT, бизнесе и других сферах.
+              </span>
             </p>
           </div>
 
@@ -91,11 +114,18 @@ export default function HomePage() {
                 </div>
               </div>
               <h3 className="font-bold text-xl md:text-2xl mb-2 tracking-tight">
-                Mustaqil tahlil
+                <span data-lang="uz">Mustaqil tahlil</span>
+                <span data-lang="ru">Независимый анализ</span>
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                Bozor o&apos;rganiladi, eng muhim mezonlar ajratiladi. Reklama
-                emas — fakt va tahlil.
+                <span data-lang="uz">
+                  Bozorni o&apos;rganamiz va sohaning eng muhim mezonlarini
+                  ajratamiz. Reklama emas — fakt va tahlil.
+                </span>
+                <span data-lang="ru">
+                  Изучаем рынок и выделяем главные критерии. Не реклама — факты
+                  и анализ.
+                </span>
               </p>
             </article>
 
@@ -110,11 +140,18 @@ export default function HomePage() {
                 </div>
               </div>
               <h3 className="font-bold text-xl md:text-2xl mb-2 tracking-tight">
-                Tekshirilgan ma&apos;lumot
+                <span data-lang="uz">Tekshirilgan ma&apos;lumot</span>
+                <span data-lang="ru">Проверенная информация</span>
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                Har raqam, narx va da&apos;vo tashqi manbadan tekshiriladi.
-                Yolg&apos;on yo&apos;q.
+                <span data-lang="uz">
+                  Har raqam, narx va da&apos;vo tashqi manbadan tekshiriladi.
+                  Yolg&apos;on yo&apos;q.
+                </span>
+                <span data-lang="ru">
+                  Каждое число, цена и заявление проверяются по внешним
+                  источникам. Без лжи.
+                </span>
               </p>
             </article>
 
@@ -129,25 +166,34 @@ export default function HomePage() {
                 </div>
               </div>
               <h3 className="font-bold text-xl md:text-2xl mb-2 tracking-tight">
-                Foydali qo&apos;llanmalar
+                <span data-lang="uz">Foydali qo&apos;llanmalar</span>
+                <span data-lang="ru">Полезные руководства</span>
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                Tanlash mezonlari, qiyoslash jadvallari, savol-javoblar va
-                manba linklari.
+                <span data-lang="uz">
+                  Tanlash mezonlari, qiyoslash jadvallari, savol-javoblar va
+                  manba linklari.
+                </span>
+                <span data-lang="ru">
+                  Критерии выбора, таблицы сравнений, вопросы-ответы и ссылки на
+                  источники.
+                </span>
               </p>
             </article>
           </div>
 
           <div className="mt-10 md:mt-12 flex flex-wrap items-center gap-3">
             <Link href="/maqolalar" className={buttonVariants({ size: "lg" })}>
-              Maqolalarni ko&apos;rish
+              <span data-lang="uz">Maqolalarni ko&apos;rish</span>
+              <span data-lang="ru">Смотреть статьи</span>
               <ArrowRight size={16} />
             </Link>
             <Link
               href="/biz-haqimizda"
               className={buttonVariants({ size: "lg", variant: "outline" })}
             >
-              Biz haqimizda
+              <span data-lang="uz">Biz haqimizda</span>
+              <span data-lang="ru">О нас</span>
             </Link>
           </div>
         </div>

@@ -31,22 +31,33 @@ export default function ArticlesPage() {
         <ol className="flex items-center gap-1.5 text-muted-foreground">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
-          <li className="text-foreground font-medium">Maqolalar</li>
+          <li className="text-foreground font-medium">
+            <span data-lang="uz">Maqolalar</span>
+            <span data-lang="ru">Статьи</span>
+          </li>
         </ol>
       </nav>
 
       <header className="container-page py-10 border-b border-border mb-10">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-3xl">
-          Maqolalar va qo&apos;llanmalar
+          <span data-lang="uz">Maqolalar va qo&apos;llanmalar</span>
+          <span data-lang="ru">Статьи и руководства</span>
         </h1>
         <p className="mt-3 text-muted-foreground max-w-2xl">
-          O&apos;zbekistondagi klinikalar, agentliklar, mutaxassislar va bizneslarni
-          tanlash bo&apos;yicha mutaxassis maqolalari. Reytinglar, taqqoslashlar va
-          amaliy qo&apos;llanmalar.
+          <span data-lang="uz">
+            O&apos;zbekistondagi klinikalar, agentliklar, mutaxassislar va
+            bizneslarni tanlash bo&apos;yicha mutaxassis maqolalari. Reytinglar,
+            taqqoslashlar va amaliy qo&apos;llanmalar.
+          </span>
+          <span data-lang="ru">
+            Экспертные статьи о выборе клиник, агентств, специалистов и бизнесов
+            в Узбекистане. Рейтинги, сравнения и практические руководства.
+          </span>
         </p>
       </header>
 
@@ -56,7 +67,8 @@ export default function ArticlesPage() {
             href="/maqolalar"
             className="rounded-full border border-primary bg-primary/10 text-primary px-3 py-1 text-sm font-medium"
           >
-            Barchasi
+            <span data-lang="uz">Barchasi</span>
+            <span data-lang="ru">Все</span>
           </Link>
           {categories.slice(0, 8).map((c) => (
             <Link
@@ -71,7 +83,8 @@ export default function ArticlesPage() {
 
         {articles.length === 0 ? (
           <p className="text-muted-foreground py-20 text-center">
-            Hozircha maqolalar yo&apos;q.
+            <span data-lang="uz">Hozircha maqolalar yo&apos;q.</span>
+            <span data-lang="ru">Пока нет статей.</span>
           </p>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 pb-16">

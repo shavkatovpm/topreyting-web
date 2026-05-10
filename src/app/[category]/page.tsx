@@ -56,7 +56,8 @@ export default async function CategoryPage({
         <ol className="flex items-center gap-1.5 text-muted-foreground">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
@@ -73,13 +74,19 @@ export default async function CategoryPage({
           </div>
           <div className="flex-1">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
-              O&apos;zbekistondagi eng yaxshi {category.namePlural.toLowerCase()}
+              <span data-lang="uz">
+                O&apos;zbekistondagi eng yaxshi {category.namePlural.toLowerCase()}
+              </span>
+              <span data-lang="ru">
+                Лучшие {category.namePlural.toLowerCase()} в Узбекистане
+              </span>
             </h1>
             <p className="mt-3 text-muted-foreground max-w-3xl">
               {category.description}
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              Mustaqil tahlillar va qo&apos;llanmalar asosida
+              <span data-lang="uz">Mustaqil tahlillar va qo&apos;llanmalar asosida</span>
+              <span data-lang="ru">На основе независимых анализов и руководств</span>
             </p>
           </div>
         </div>
@@ -92,7 +99,8 @@ export default async function CategoryPage({
             className="rounded-full border border-primary bg-primary/10 text-primary px-3 py-1 text-sm font-medium inline-flex items-center gap-1"
           >
             <MapPin size={12} />
-            Hammasi
+            <span data-lang="uz">Hammasi</span>
+            <span data-lang="ru">Все</span>
           </Link>
           {cities.slice(0, 8).map((c) => (
             <Link
@@ -110,10 +118,16 @@ export default async function CategoryPage({
           <div className="text-center py-20">
             <Trophy size={40} className="mx-auto text-muted-foreground/40 mb-4" />
             <p className="text-muted-foreground mb-2">
-              Bu kategoriya bo&apos;yicha hozircha ro&apos;yxatlar yo&apos;q.
+              <span data-lang="uz">
+                Bu kategoriya bo&apos;yicha hozircha ro&apos;yxatlar yo&apos;q.
+              </span>
+              <span data-lang="ru">
+                В этой категории пока нет записей.
+              </span>
             </p>
             <Link href="/qoshish" className="text-primary hover:underline text-sm">
-              Birinchi bo&apos;lib qo&apos;shing →
+              <span data-lang="uz">Birinchi bo&apos;lib qo&apos;shing →</span>
+              <span data-lang="ru">Добавьте первым →</span>
             </Link>
           </div>
         ) : (

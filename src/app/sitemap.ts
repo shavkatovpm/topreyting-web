@@ -27,12 +27,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
     {
-      url: `${site.url}/aloqa`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
       url: `${site.url}/qoshish`,
       lastModified: now,
       changeFrequency: "monthly",

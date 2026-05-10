@@ -75,13 +75,15 @@ export default async function ArticlePage({
         <ol className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
           <li>
             <Link href="/" className="hover:text-foreground">
-              Bosh sahifa
+              <span data-lang="uz">Bosh sahifa</span>
+              <span data-lang="ru">Главная</span>
             </Link>
           </li>
           <ChevronRight size={14} />
           <li>
             <Link href="/maqolalar" className="hover:text-foreground">
-              Maqolalar
+              <span data-lang="uz">Maqolalar</span>
+              <span data-lang="ru">Статьи</span>
             </Link>
           </li>
           <ChevronRight size={14} />
@@ -127,7 +129,9 @@ export default async function ArticlePage({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock size={14} />
-              {article.readingTimeMinutes} daq. o&apos;qish
+              {article.readingTimeMinutes}{" "}
+              <span data-lang="uz">daq. o&apos;qish</span>
+              <span data-lang="ru">мин чтения</span>
             </span>
           </div>
 
@@ -145,7 +149,10 @@ export default async function ArticlePage({
 
           {article.faqs && article.faqs.length > 0 && (
             <section className="mt-16 border-t border-border pt-10" id="savol-javob">
-              <h2 className="text-2xl font-bold tracking-tight mb-6">Savol-javoblar</h2>
+              <h2 className="text-2xl font-bold tracking-tight mb-6">
+                <span data-lang="uz">Savol-javoblar</span>
+                <span data-lang="ru">Вопросы и ответы</span>
+              </h2>
               <div className="space-y-3">
                 {article.faqs.map((faq, i) => (
                   <details
@@ -182,7 +189,8 @@ export default async function ArticlePage({
         <section className="border-t border-border bg-secondary/30">
           <div className="container-page py-16">
             <h2 className="text-2xl font-bold tracking-tight mb-8">
-              O&apos;xshash maqolalar
+              <span data-lang="uz">O&apos;xshash maqolalar</span>
+              <span data-lang="ru">Похожие статьи</span>
             </h2>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {related.map((a) => (
