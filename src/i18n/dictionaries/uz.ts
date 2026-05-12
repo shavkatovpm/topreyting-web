@@ -116,6 +116,8 @@ export const uz = {
     title: "Qidiruv",
     resultsBefore: "bo'yicha",
     resultsAfter: "ta natija",
+    sectionListings: "Tashkilotlar",
+    sectionArticles: "Maqolalar",
   },
   ad: {
     title: "Top Reyting'da reklama",

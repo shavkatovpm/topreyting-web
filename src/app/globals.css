@@ -118,8 +118,13 @@ html[lang="ru"] [data-lang="uz"] { display: none; }
     border-radius: 0.5rem;
     border: 1px solid var(--border);
     background: var(--background);
-    font-size: 0.875rem;
+    font-size: 1rem;
     transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  @media (min-width: 768px) {
+    .input {
+      font-size: 0.875rem;
+    }
   }
   .input:focus {
     outline: none;

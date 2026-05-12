@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 import { Search, ChevronRight } from "lucide-react";
 import { listings } from "@/data/listings";
 import { ListingCard } from "@/components/cards/listing-card";
+import { ArticleCard } from "@/components/cards/article-card";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
+import { getAllArticles } from "@/lib/articles";
 import { getDictionary, isLocale, type Locale } from "@/i18n";
 
 export const metadata: Metadata = {
@@ -28,7 +30,7 @@ export default async function SearchPage({
   const { q = "" } = await searchParams;
   const query = q.trim().toLowerCase();
 
-  const results = query
+  const listingResults = query
     ? listings.filter(
         (l) =>
           l.name.toLowerCase().includes(query) ||
@@ -36,6 +38,17 @@ export default async function SearchPage({
           l.services.some((s) => s.toLowerCase().includes(query))
       )
     : [];
+
+  const articleResults = query
+    ? getAllArticles().filter(
+        (a) =>
+          a.title.toLowerCase().includes(query) ||
+          a.description.toLowerCase().includes(query) ||
+          a.tags.some((tag) => tag.toLowerCase().includes(query))
+      )
+    : [];
+
+  const totalResults = listingResults.length + articleResults.length;
 
   return (
     <>
@@ -70,7 +83,7 @@ export default async function SearchPage({
             defaultValue={q}
             autoFocus
             placeholder={t.common.searchPlaceholder}
-            className="flex-1 bg-transparent outline-none text-sm"
+            className="flex-1 bg-transparent outline-none text-base md:text-sm"
           />
           <button
             type="submit"
@@ -84,20 +97,44 @@ export default async function SearchPage({
           <p className="mt-6 text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{q}</span>{" "}
             {t.searchPage.resultsBefore}{" "}
-            <span className="font-medium text-foreground">{results.length}</span>{" "}
+            <span className="font-medium text-foreground">{totalResults}</span>{" "}
             {t.searchPage.resultsAfter}
           </p>
         )}
 
-        {query && results.length > 0 && (
-          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {results.map((l) => (
-              <ListingCard key={l.slug} listing={l} lang={locale} />
-            ))}
-          </div>
+        {query && articleResults.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-xl font-bold tracking-tight mb-4">
+              {t.searchPage.sectionArticles}
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({articleResults.length})
+              </span>
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {articleResults.map((a) => (
+                <ArticleCard key={a.slug} article={a} lang={locale} />
+              ))}
+            </div>
+          </section>
         )}
 
-        {query && results.length === 0 && (
+        {query && listingResults.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-xl font-bold tracking-tight mb-4">
+              {t.searchPage.sectionListings}
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({listingResults.length})
+              </span>
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {listingResults.map((l) => (
+                <ListingCard key={l.slug} listing={l} lang={locale} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {query && totalResults === 0 && (
           <div className="mt-10 text-center py-12 rounded-xl border border-dashed border-border bg-secondary/30">
             <p className="text-muted-foreground">{t.common.nothingFound}</p>
             <Link

@@ -118,6 +118,8 @@ export const ru: Dictionary = {
     title: "Поиск",
     resultsBefore: "—",
     resultsAfter: "результатов",
+    sectionListings: "Организации",
+    sectionArticles: "Статьи",
   },
   ad: {
     title: "Реклама на Top Reyting",
