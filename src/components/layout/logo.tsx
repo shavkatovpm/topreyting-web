@@ -26,7 +26,7 @@ export function Logo({
         height={36}
         priority
         sizes="36px"
-        className="rounded-[10px] shrink-0"
+        className="rounded-[10px] shrink-0 ring-1 ring-inset ring-black/10 dark:ring-white/10"
       />
       {withText && (
         <span className="font-bold text-lg tracking-tight leading-tight">
