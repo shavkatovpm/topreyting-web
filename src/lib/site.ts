@@ -7,7 +7,7 @@ export const site = {
   lang: "uz",
   description:
     "O'zbekistondagi klinikalar, agentliklar, mutaxassislar, bizneslar va startaplar haqida mustaqil tahlillar va qo'llanmalar.",
-  tagline: "O'zbekistondagi eng yaxshilarni tanlash bo'yicha mustaqil qo'llanmalar",
+  tagline: "O'zbekistondagi eng yaxshilarini tanlash",
   keywords: [
     "top reyting",
     "eng yaxshi klinikalar",

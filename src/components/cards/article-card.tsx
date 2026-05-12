@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Calendar, FileText } from "lucide-react";
 import type { Article } from "@/lib/articles";
+import { getCategory } from "@/data/categories";
 import { getDictionary, type Locale } from "@/i18n";
 
 export function ArticleCard({
@@ -11,6 +12,9 @@ export function ArticleCard({
   lang: Locale;
 }) {
   const t = getDictionary(lang);
+  const category = getCategory(article.category);
+  const Icon = category?.icon ?? FileText;
+  const gradient = category?.color ?? "from-primary to-gold";
   const date = new Date(article.publishedAt).toLocaleDateString(
     lang === "ru" ? "ru-RU" : "uz-UZ",
     { day: "numeric", month: "long", year: "numeric" }
@@ -19,11 +23,11 @@ export function ArticleCard({
   return (
     <article className="group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all hover:border-primary/40 hover:shadow-md">
       <div
-        className="aspect-[16/9] bg-gradient-to-br from-primary/10 via-secondary to-gold/10 relative"
+        className={`aspect-[16/9] bg-gradient-to-br ${gradient} relative`}
         aria-hidden
       >
-        <div className="absolute inset-0 grid place-items-center text-6xl font-bold text-primary/20">
-          TR
+        <div className="absolute inset-0 grid place-items-center text-white/95">
+          <Icon size={56} strokeWidth={1.5} />
         </div>
       </div>
       <div className="flex flex-col p-5 flex-1">

@@ -148,6 +148,13 @@ export default async function ArticlePage({
           <div className="prose-article mt-10">
             <MDXRemote
               source={article.body}
+              components={{
+                table: (props) => (
+                  <div className="table-wrap">
+                    <table {...props} />
+                  </div>
+                ),
+              }}
               options={{
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],
@@ -167,6 +174,7 @@ export default async function ArticlePage({
                 {article.faqs.map((faq, i) => (
                   <details
                     key={i}
+                    name={`faq-${slug}`}
                     className="group rounded-lg border border-border bg-card p-5 open:bg-secondary/30 transition-colors"
                   >
                     <summary className="font-semibold cursor-pointer list-none flex items-start justify-between gap-4">
