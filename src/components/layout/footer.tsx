@@ -7,7 +7,7 @@ import { getDictionary, type Locale } from "@/i18n";
 
 export function Footer({ lang }: { lang: Locale }) {
   const t = getDictionary(lang);
-  const articleCats = Array.from(new Set(getAllArticles().map((a) => a.category)));
+  const articleCats = Array.from(new Set(getAllArticles(lang).map((a) => a.category)));
   const activeCategories = getActiveCategories(articleCats);
   const hasCategories = activeCategories.length > 0;
 

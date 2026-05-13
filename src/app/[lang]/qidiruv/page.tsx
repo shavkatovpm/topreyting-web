@@ -40,7 +40,7 @@ export default async function SearchPage({
     : [];
 
   const articleResults = query
-    ? getAllArticles().filter(
+    ? getAllArticles(locale).filter(
         (a) =>
           a.title.toLowerCase().includes(query) ||
           a.description.toLowerCase().includes(query) ||

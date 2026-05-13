@@ -19,7 +19,7 @@ export const dynamicParams = false;
 export function generateStaticParams() {
   const params: { lang: string; slug: string }[] = [];
   for (const lang of locales) {
-    for (const slug of getAllArticleSlugs()) {
+    for (const slug of getAllArticleSlugs(lang)) {
       params.push({ lang, slug });
     }
   }
@@ -31,8 +31,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const { lang, slug } = await params;
+  if (!isLocale(lang)) return {};
+  const article = getArticleBySlug(slug, lang);
   if (!article) return {};
 
   const url = `${site.url}/maqolalar/${slug}`;
@@ -64,12 +65,12 @@ export default async function ArticlePage({
   const { lang, slug } = await params;
   if (!isLocale(lang)) notFound();
   const locale: Locale = lang;
-  const article = getArticleBySlug(slug);
+  const article = getArticleBySlug(slug, locale);
 
   if (!article) notFound();
 
   const category = getCategory(article.category);
-  const related = getAllArticles()
+  const related = getAllArticles(locale)
     .filter((a) => a.slug !== article.slug && a.category === article.category)
     .slice(0, 3);
 

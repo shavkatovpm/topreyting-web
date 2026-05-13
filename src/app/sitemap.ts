@@ -20,8 +20,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/shartlar",
   ];
 
-  // Active categories — only those with content
-  const articleCats = new Set(getAllArticles().map((a) => a.category));
+  // Active categories — union across all locales
+  const articleCats = new Set(
+    locales.flatMap((loc) => getAllArticles(loc).map((a) => a.category))
+  );
   const listingCats = new Set(listings.map((l) => l.category));
   const activeCatSlugs = new Set([...articleCats, ...listingCats]);
 
@@ -65,9 +67,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.75,
       });
     }
-    // Articles
-    for (const slug of getAllArticleSlugs()) {
-      const a = getArticleBySlug(slug);
+    // Articles — only emit URLs that exist in this locale
+    for (const slug of getAllArticleSlugs(lang)) {
+      const a = getArticleBySlug(slug, lang);
       if (!a) continue;
       out.push({
         url: `${site.url}${localeHref(lang, `/maqolalar/${slug}`)}`,

@@ -52,7 +52,7 @@ export default async function ArticlesPage({
   if (!isLocale(lang)) notFound();
   const locale: Locale = lang;
   const t = getDictionary(locale);
-  const articles = getAllArticles();
+  const articles = getAllArticles(locale);
 
   return (
     <>

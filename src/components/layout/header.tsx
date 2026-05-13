@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function Header({ lang }: { lang: Locale }) {
   const t = getDictionary(lang);
-  const articleCats = Array.from(new Set(getAllArticles().map((a) => a.category)));
+  const articleCats = Array.from(new Set(getAllArticles(lang).map((a) => a.category)));
   const activeCategories = getActiveCategories(articleCats);
 
   const pageLinks = [

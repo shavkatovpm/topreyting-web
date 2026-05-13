@@ -20,7 +20,7 @@ export default async function HomePage({
   const locale: Locale = lang;
   const t = getDictionary(locale);
 
-  const articles = getAllArticles();
+  const articles = getAllArticles(locale);
   const latestArticles = articles.slice(0, 6);
 
   return (
