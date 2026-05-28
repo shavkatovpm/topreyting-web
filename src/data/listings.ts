@@ -29,29 +29,29 @@ export const listings: Listing[] = [
     category: "go-zallik",
     city: "toshkent",
     shortDescription:
-      "Toshkentdagi 001 Barbershop — qulay muhit va hamyonbop narxlarda erkaklar uchun soch olish. Turli daraja masterlar, har kuni kechqurun 23:00 gacha ochiq, Telegram orqali onlayn bron.",
+      "Toshkentdagi 001 Barbershop — qulay muhit va hamyonbop narxlarda erkaklar uchun soch olish. Turli daraja masterlar, har kuni kechqurun 23:00 gacha ochiq, Instagram orqali onlayn bron.",
     description:
-      "001 Barbershop — Toshkent shahridagi erkaklar uchun sartaroshxona. Asosiy ustunligi — qulay, dam oladigan muhit va hamyonbop narxlar: har bir mijoz o'z byudjetiga mos master tanlashi mumkin.\n\nSalonda turli daraja masterlar ishlaydi. Boshlang'ich daraja masterlarda soch olish 100 000–120 000 so'm, tajribali (top) masterlarda esa 200 000–300 000 so'm atrofida. Shu tariqa ham endigina boshlaganlar, ham eng yaxshi natijani istaganlar uchun tanlov bor.\n\n001 Barbershop har kuni ertalab 10:00 dan kechqurun 23:00 gacha ishlaydi — ish kunidan keyin ham bemalol kelib soch olish mumkin. Salon Toshkent shahridagi Qurilish ko'chasida joylashgan. Navbatga yozilish va bron qilish Telegram (@001_barbershop_) yoki telefon (+998 77 001 40 40) orqali amalga oshiriladi.",
+      "001 Barbershop — Toshkent shahridagi erkaklar uchun sartaroshxona. Asosiy ustunligi — qulay, dam oladigan muhit va hamyonbop narxlar: har bir mijoz o'z byudjetiga mos master tanlashi mumkin.\n\nSalonda turli daraja masterlar ishlaydi. Boshlang'ich daraja masterlarda soch olish 100 000–120 000 so'm, tajribali (top) masterlarda esa 200 000–300 000 so'm atrofida. Shu tariqa ham endigina boshlaganlar, ham eng yaxshi natijani istaganlar uchun tanlov bor.\n\n001 Barbershop har kuni ertalab 10:00 dan kechqurun 23:00 gacha ishlaydi — ish kunidan keyin ham bemalol kelib soch olish mumkin. Salon Toshkent shahridagi Qurilish ko'chasida joylashgan. Navbatga yozilish va bron qilish Instagram (@001_barbershop_) yoki telefon (+998 77 001 40 40) orqali amalga oshiriladi.",
     rating: 0,
     reviewCount: 0,
     priceRange: "100 000 – 300 000 so'm",
     address: "Qurilish ko'chasi, Toshkent",
     phone: "+998 77 001 40 40",
-    website: "https://t.me/001_barbershop_",
+    website: "https://instagram.com/001_barbershop_",
     workingHours: "Har kuni 10:00 – 23:00",
     services: [
       "Erkaklar soch olish — boshlang'ich master (100 000–120 000 so'm)",
       "Erkaklar soch olish — top master (200 000–300 000 so'm)",
       "Soqol olish va shakllantirish",
       "Soch + soqol (kompleks xizmat)",
-      "Telegram orqali onlayn bron",
+      "Instagram orqali onlayn bron",
     ],
     features: [
       "Qulay, dam oladigan muhit",
       "Hamyonbop narxlar",
       "Turli daraja masterlar",
       "Kechqurun 23:00 gacha ochiq",
-      "Onlayn bron (Telegram)",
+      "Onlayn bron (Instagram)",
     ],
     faqs: [
       {
@@ -68,7 +68,7 @@ export const listings: Listing[] = [
       },
       {
         q: "001 Barbershopga qanday qilib bron qilish mumkin?",
-        a: "Navbatga yozilish Telegram orqali @001_barbershop_ akkauntida yoki +998 77 001 40 40 raqamiga qo'ng'iroq qilish orqali amalga oshiriladi.",
+        a: "Navbatga yozilish Instagram orqali @001_barbershop_ akkauntida yoki +998 77 001 40 40 raqamiga qo'ng'iroq qilish orqali amalga oshiriladi.",
       },
       {
         q: "Toshkentda kechqurun kech ochiq barbershop bormi?",
