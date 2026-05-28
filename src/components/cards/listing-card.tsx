@@ -75,7 +75,13 @@ export function ListingCard({ listing, lang, showRank, className }: Props) {
       </p>
 
       <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-border">
-        <StarRating rating={listing.rating} reviewCount={listing.reviewCount} size="sm" />
+        {listing.reviewCount > 0 ? (
+          <StarRating rating={listing.rating} reviewCount={listing.reviewCount} size="sm" />
+        ) : (
+          <span className="text-xs font-medium text-muted-foreground">
+            {lang === "ru" ? "Новое" : "Yangi"}
+          </span>
+        )}
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           {listing.address && (
             <span className="inline-flex items-center gap-1">

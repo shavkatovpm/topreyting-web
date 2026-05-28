@@ -52,8 +52,14 @@ export async function generateMetadata({
   const city = getCity(citySlug);
   if (!listing || !category || !city) return {};
 
-  const title = `${listing.name} — ${city.name} | Reyting ${listing.rating.toFixed(1)}/5`;
-  const description = `${listing.name}: ${listing.shortDescription} ${listing.reviewCount} ta sharh, reyting ${listing.rating.toFixed(1)}. Manzil, telefon, narxlar.`;
+  const title =
+    listing.reviewCount > 0
+      ? `${listing.name} — ${city.name} | Reyting ${listing.rating.toFixed(1)}/5`
+      : `${listing.name} — ${city.name} | ${category.name}`;
+  const description =
+    listing.reviewCount > 0
+      ? `${listing.name}: ${listing.shortDescription} ${listing.reviewCount} ta sharh, reyting ${listing.rating.toFixed(1)}. Manzil, telefon, narxlar.`
+      : `${listing.name}: ${listing.shortDescription} Manzil, telefon, narxlar va ish vaqti.`;
 
   return {
     title,
@@ -154,11 +160,20 @@ export default async function ListingPage({
               </div>
 
               <div className="mt-4 flex items-center gap-3 flex-wrap">
-                <StarRating rating={listing.rating} reviewCount={listing.reviewCount} size="lg" />
-                <span className="text-sm text-muted-foreground">
-                  <span data-lang="uz">{listing.reviewCount} ta sharh asosida</span>
-                  <span data-lang="ru">на основе {listing.reviewCount} отзывов</span>
-                </span>
+                {listing.reviewCount > 0 ? (
+                  <>
+                    <StarRating rating={listing.rating} reviewCount={listing.reviewCount} size="lg" />
+                    <span className="text-sm text-muted-foreground">
+                      <span data-lang="uz">{listing.reviewCount} ta sharh asosida</span>
+                      <span data-lang="ru">на основе {listing.reviewCount} отзывов</span>
+                    </span>
+                  </>
+                ) : (
+                  <Badge variant="outline" className="py-1.5">
+                    <span data-lang="uz">Yangi — sharhlar hali yo&apos;q</span>
+                    <span data-lang="ru">Новое — отзывов пока нет</span>
+                  </Badge>
+                )}
               </div>
             </header>
 

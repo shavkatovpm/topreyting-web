@@ -72,13 +72,18 @@ export function localBusinessJsonLd(listing: Listing, category: Category, city: 
           addressCountry: "UZ",
         }
       : undefined,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: listing.rating.toFixed(1),
-      reviewCount: listing.reviewCount,
-      bestRating: "5",
-      worstRating: "1",
-    },
+    // Faqat real sharhlar bo'lganda aggregateRating qo'shamiz —
+    // soxta reyting Google strukturali ma'lumot siyosatini buzadi.
+    aggregateRating:
+      listing.reviewCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: listing.rating.toFixed(1),
+            reviewCount: listing.reviewCount,
+            bestRating: "5",
+            worstRating: "1",
+          }
+        : undefined,
     priceRange: listing.priceRange,
     openingHours: listing.workingHours,
     foundingDate: listing.yearFounded?.toString(),
