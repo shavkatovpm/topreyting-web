@@ -9,13 +9,15 @@ import { defaultLocale, isLocale, locales } from "@/i18n/config";
  *   /ru/maqolalar → render RU (passes through)
  *   /uz/...    → 301 redirect to / (canonical UZ has no prefix)
  */
-export function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
   // Skip Next.js internals and asset files
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
     pathname === "/llms.txt" ||

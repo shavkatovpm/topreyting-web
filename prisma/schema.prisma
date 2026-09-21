@@ -1,0 +1,200 @@
+// Topreyting.uz — ma'lumotlar modeli.
+// Reyting HECH QACHON saqlanmaydi: u `Payment` yozuvlaridan hisoblanadi (src/lib/ranking.ts).
+// `BrandCategory.totalPaid / reachedAt / activeUntil` — faqat kesh, source of truth = Payment.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum EntityStatus {
+  ACTIVE
+  UNPUBLISHED
+  DELETED
+}
+
+enum PaymentStatus {
+  CONFIRMED
+  VOIDED
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         Role      @default(ADMIN)
+  // Telegram guruhidagi "Tasdiqlash" tugmasi faqat shu ID egalariga ishlaydi
+  telegramId   String?   @unique
+  disabledAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  brands      Brand[]
+  payments    Payment[]    @relation("PaymentCreatedBy")
+  voided      Payment[]    @relation("PaymentVoidedBy")
+  logs        AuditLog[]
+  submissions Submission[]
+}
+
+// Saytdan kelgan "Reytingga qo'shilish" arizasi: brend ma'lumotlari + to'lov cheki.
+// Tasdiqlanganda Brend + BrandCategory + Payment yaratiladi (src/lib/submissions.ts).
+model Submission {
+  id           String           @id @default(cuid())
+  status       SubmissionStatus @default(PENDING)
+  categoryId   String
+  category     Category         @relation(fields: [categoryId], references: [id])
+  data         Json // brend maydonlari (name, shortDescription, ...)
+  contactName  String
+  contactPhone String // saytda ko'rsatilmaydi, faqat admin uchun
+  amount       BigInt // ariza beruvchi ko'rsatgan summa (admin tasdiqlashda o'zgartira oladi)
+  receiptFile  String // storage/receipts ichidagi fayl nomi
+  receiptMime  String
+  lang         String           @default("uz")
+  ipHash       String?
+  brandId      String?
+  reviewedById String?
+  reviewedBy   AdminUser?       @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  rejectReason String?
+  telegramMessageId String?
+  createdAt    DateTime         @default(now())
+
+  @@index([status, createdAt])
+}
+
+model Category {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  name             String
+  h1               String
+  seoTitle         String
+  metaDescription  String
+  shortDescription String
+  longContent      String       @default("")
+  status           EntityStatus @default(UNPUBLISHED)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  brands      BrandCategory[]
+  submissions Submission[]
+}
+
+model Brand {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  name             String
+  // Boshqa yozilishlar (lotin/kirill/imlo variantlari) — qidiruv va JSON-LD alternateName uchun
+  alternateNames   Json         @default("[]")
+  logoUrl          String?
+  shortDescription String
+  fullDescription  String
+  websiteUrl       String?
+  instagramUrl     String?
+  telegramUrl      String?
+  phone            String?
+  address          String?
+  city             String? // shahar slug'i (URL'da emas, faqat ma'lumot)
+  priceRange       String?
+  workingHours     String?
+  yearFounded      Int?
+  services         Json         @default("[]")
+  features         Json         @default("[]")
+  faqs             Json         @default("[]")
+  status           EntityStatus @default(UNPUBLISHED)
+  createdById      String?
+  createdBy        AdminUser?   @relation(fields: [createdById], references: [id])
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  categories BrandCategory[]
+}
+
+// Brend <-> Kategoriya (many-to-many). To'lov aynan shu bog'lanishga tegishli.
+model BrandCategory {
+  id         String   @id @default(cuid())
+  brandId    String
+  categoryId String
+  brand      Brand    @relation(fields: [brandId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  // KESH — har payment o'zgarganda tranzaksiya ichida qayta hisoblanadi
+  totalPaid   BigInt    @default(0)
+  reachedAt   DateTime? // hozirgi summaga yetgan (oxirgi) to'lov sanasi — tie-break
+  activeUntil DateTime? // oxirgi to'lov + 3 oy; o'tib ketsa brend public'da ko'rinmaydi
+
+  createdAt DateTime @default(now())
+  payments  Payment[]
+
+  @@unique([brandId, categoryId])
+  @@index([categoryId, totalPaid])
+}
+
+// O'zgarmas (immutable) yozuv. Xato bo'lsa — VOID (sabab bilan), o'chirish yo'q.
+model Payment {
+  id              String        @id @default(cuid())
+  brandCategoryId String
+  brandCategory   BrandCategory @relation(fields: [brandCategoryId], references: [id])
+  amount          BigInt // so'mda, butun son
+  note            String?
+  reference       String? // bank/Payme/Click tranzaksiya raqami yoki chek raqami
+  paymentDate     DateTime
+  status          PaymentStatus @default(CONFIRMED)
+  createdById     String
+  createdBy       AdminUser     @relation("PaymentCreatedBy", fields: [createdById], references: [id])
+  createdAt       DateTime      @default(now())
+  voidedAt        DateTime?
+  voidReason      String?
+  voidedById      String?
+  voidedBy        AdminUser?    @relation("PaymentVoidedBy", fields: [voidedById], references: [id])
+
+  @@index([brandCategoryId, status])
+}
+
+// Sodda kalit-qiymat sozlamalar: minPaymentAmount, activeMonths, ...
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// Faqat qo'shiladi (append-only). Oddiy admin o'chira olmaydi.
+model AuditLog {
+  id         String     @id @default(cuid())
+  adminId    String?
+  admin      AdminUser? @relation(fields: [adminId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  oldValue   Json?
+  newValue   Json?
+  createdAt  DateTime   @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// Slug o'zgarganda eski URL 301 bilan yangisiga o'tishi uchun
+model SlugHistory {
+  id         String   @id @default(cuid())
+  entityType String // "brand" | "category"
+  entityId   String
+  oldSlug    String
+  createdAt  DateTime @default(now())
+
+  @@unique([entityType, oldSlug])
+}

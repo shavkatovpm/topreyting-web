@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Search, ChevronRight } from "lucide-react";
-import { listings } from "@/data/listings";
-import { ListingCard } from "@/components/cards/listing-card";
+import { searchBrands } from "@/lib/public-data";
+import { BrandRow } from "@/components/ranking/brand-row";
 import { ArticleCard } from "@/components/cards/article-card";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
@@ -30,14 +30,7 @@ export default async function SearchPage({
   const { q = "" } = await searchParams;
   const query = q.trim().toLowerCase();
 
-  const listingResults = query
-    ? listings.filter(
-        (l) =>
-          l.name.toLowerCase().includes(query) ||
-          l.shortDescription.toLowerCase().includes(query) ||
-          l.services.some((s) => s.toLowerCase().includes(query))
-      )
-    : [];
+  const listingResults = query ? await searchBrands(query) : [];
 
   const articleResults = query
     ? getAllArticles(locale).filter(
@@ -126,9 +119,9 @@ export default async function SearchPage({
                 ({listingResults.length})
               </span>
             </h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {listingResults.map((l) => (
-                <ListingCard key={l.slug} listing={l} lang={locale} />
+            <div className="space-y-3">
+              {listingResults.map((item) => (
+                <BrandRow key={item.brand.id} item={item} lang={locale} />
               ))}
             </div>
           </section>

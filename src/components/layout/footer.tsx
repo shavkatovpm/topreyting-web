@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { Logo } from "./logo";
-import { getActiveCategories } from "@/data/categories";
-import { getAllArticles } from "@/lib/articles";
+import { getPublicCategories } from "@/lib/public-data";
 import { site } from "@/lib/site";
 import { getDictionary, type Locale } from "@/i18n";
 
-export function Footer({ lang }: { lang: Locale }) {
+export async function Footer({ lang }: { lang: Locale }) {
   const t = getDictionary(lang);
-  const articleCats = Array.from(new Set(getAllArticles(lang).map((a) => a.category)));
-  const activeCategories = getActiveCategories(articleCats);
+  const activeCategories = (await getPublicCategories()).map((c) => ({
+    slug: c.slug,
+    namePlural: c.name,
+  }));
   const hasCategories = activeCategories.length > 0;
 
   return (

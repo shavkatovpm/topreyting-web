@@ -4,15 +4,20 @@ import { Logo } from "./logo";
 import { CategoriesDropdown } from "./categories-dropdown";
 import { MobileMenu } from "./mobile-menu";
 import { LanguageToggle } from "@/components/language-toggle";
-import { getActiveCategories } from "@/data/categories";
-import { getAllArticles } from "@/lib/articles";
+import { JoinButton } from "@/components/join/join-button";
+import { getCategoryVisual } from "@/data/categories";
+import { getPublicCategories } from "@/lib/public-data";
 import { getDictionary, type Locale , localeHref} from "@/i18n";
 import { cn } from "@/lib/utils";
 
-export function Header({ lang }: { lang: Locale }) {
+export async function Header({ lang }: { lang: Locale }) {
   const t = getDictionary(lang);
-  const articleCats = Array.from(new Set(getAllArticles(lang).map((a) => a.category)));
-  const activeCategories = getActiveCategories(articleCats);
+  const activeCategories = (await getPublicCategories()).map((c) => ({
+    slug: c.slug,
+    namePlural: c.name,
+    description: c.shortDescription,
+    ...getCategoryVisual(c.slug),
+  }));
 
   const pageLinks = [
     { href: localeHref(lang, "/maqolalar"), label: t.common.articles },
@@ -95,6 +100,8 @@ export function Header({ lang }: { lang: Locale }) {
             <Search size={18} />
           </Link>
 
+          <JoinButton className="hidden md:inline-flex">{t.join.cta}</JoinButton>
+
           <LanguageToggle currentLang={lang} className="hidden md:inline-flex" />
 
           <MobileMenu menuLabel={t.common.menu} closeLabel={t.common.close}>
@@ -146,6 +153,10 @@ export function Header({ lang }: { lang: Locale }) {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-6">
+              <JoinButton className="w-full">{t.join.cta}</JoinButton>
+            </div>
 
             <div className="mt-6 pt-6 border-t border-border">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">

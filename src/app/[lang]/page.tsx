@@ -7,8 +7,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
-import { Hero } from "@/components/hero/hero";
 import { getDictionary, isLocale, type Locale } from "@/i18n";
+import { getHomeRanking } from "@/lib/public-data";
+import { BrandRow } from "@/components/ranking/brand-row";
+import { PaidNotice } from "@/components/ranking/paid-notice";
+import { JoinButton } from "@/components/join/join-button";
+
+// Reyting muddat tugashi bilan o'zgaradi; admin o'zgartirsa darhol yangilanadi (revalidatePublic)
+export const revalidate = 600;
 
 export default async function HomePage({
   params,
@@ -22,10 +28,34 @@ export default async function HomePage({
 
   const articles = getAllArticles(locale);
   const latestArticles = articles.slice(0, 6);
+  const ranking = await getHomeRanking();
 
   return (
     <>
-      <Hero lang={locale} />
+      <section id="reyting" className="container-page py-10 md:py-14">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-3xl">
+            <h1 className="text-3xl font-bold tracking-tight md:text-5xl">{t.hero.title}</h1>
+            <p className="mt-2 text-muted-foreground">{t.rank.sub}</p>
+          </div>
+          <JoinButton>{t.join.cta}</JoinButton>
+        </div>
+        <div className="mb-6">
+          <PaidNotice lang={locale} />
+        </div>
+        {ranking.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+            <p className="mb-4 text-muted-foreground">{t.rank.emptyAll}</p>
+            <JoinButton>{t.rank.beFirst}</JoinButton>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {ranking.map((item) => (
+              <BrandRow key={item.brand.id} item={item} lang={locale} />
+            ))}
+          </div>
+        )}
+      </section>
 
       {articles.length > 0 ? (
         <section className="container-page py-16">

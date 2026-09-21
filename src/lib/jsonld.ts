@@ -1,7 +1,6 @@
 import { site } from "./site";
-import type { Listing } from "@/data/listings";
-import type { Category } from "@/data/categories";
-import type { City } from "@/data/cities";
+import { getCity } from "@/data/cities";
+import type { Brand } from "@/generated/prisma/client";
 import type { Article } from "./articles";
 
 export function organizationJsonLd() {
@@ -53,40 +52,39 @@ export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
   };
 }
 
-export function localBusinessJsonLd(listing: Listing, category: Category, city: City) {
+/**
+ * Brend uchun structured data. FAQAT sahifada ko'rsatilgan real ma'lumotlar.
+ * Reyting pullik bo'lgani uchun aggregateRating / Review HECH QACHON qo'shilmaydi.
+ * Manzil bo'lsa LocalBusiness, bo'lmasa Organization.
+ */
+export function brandJsonLd(brand: Brand, categorySlug: string) {
+  const url = `${site.url}/${categorySlug}/${brand.slug}`;
+  const city = brand.city ? getCity(brand.city) : undefined;
+  const sameAs = [brand.websiteUrl, brand.instagramUrl, brand.telegramUrl].filter(Boolean);
+  const alternateName = Array.isArray(brand.alternateNames) ? (brand.alternateNames as string[]) : [];
+
   return {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": `${site.url}/${category.slug}/${city.slug}/${listing.slug}`,
-    name: listing.name,
-    description: listing.shortDescription,
-    url: `${site.url}/${category.slug}/${city.slug}/${listing.slug}`,
-    telephone: listing.phone,
-    email: listing.email,
-    address: listing.address
+    "@type": brand.address ? "LocalBusiness" : "Organization",
+    "@id": url,
+    name: brand.name,
+    alternateName: alternateName.length ? alternateName : undefined,
+    description: brand.shortDescription,
+    url,
+    logo: brand.logoUrl ?? undefined,
+    telephone: brand.phone ?? undefined,
+    sameAs: sameAs.length ? sameAs : undefined,
+    address: brand.address
       ? {
           "@type": "PostalAddress",
-          streetAddress: listing.address,
-          addressLocality: city.name,
-          addressRegion: city.region,
+          streetAddress: brand.address,
+          addressLocality: city?.name,
+          addressRegion: city?.region,
           addressCountry: "UZ",
         }
       : undefined,
-    // Faqat real sharhlar bo'lganda aggregateRating qo'shamiz —
-    // soxta reyting Google strukturali ma'lumot siyosatini buzadi.
-    aggregateRating:
-      listing.reviewCount > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: listing.rating.toFixed(1),
-            reviewCount: listing.reviewCount,
-            bestRating: "5",
-            worstRating: "1",
-          }
-        : undefined,
-    priceRange: listing.priceRange,
-    openingHours: listing.workingHours,
-    foundingDate: listing.yearFounded?.toString(),
+    priceRange: brand.priceRange ?? undefined,
+    foundingDate: brand.yearFounded?.toString(),
   };
 }
 
@@ -143,23 +141,16 @@ export function articleJsonLd(article: Article) {
   };
 }
 
-export function itemListJsonLd(listings: Listing[], categorySlug: string) {
+/** Kategoriya ro'yxati: faqat tartib va havola, baho yo'q. */
+export function itemListJsonLd(brands: { name: string; slug: string }[], categorySlug: string) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: listings.map((l, i) => ({
+    itemListElement: brands.map((b, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: {
-        "@type": "LocalBusiness",
-        name: l.name,
-        url: `${site.url}/${categorySlug}/${l.city}/${l.slug}`,
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: l.rating.toFixed(1),
-          reviewCount: l.reviewCount,
-        },
-      },
+      name: b.name,
+      url: `${site.url}/${categorySlug}/${b.slug}`,
     })),
   };
 }

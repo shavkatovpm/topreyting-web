@@ -6,8 +6,8 @@ export const site = {
   locale: "uz_UZ",
   lang: "uz",
   description:
-    "O'zbekistondagi klinikalar, agentliklar, mutaxassislar, bizneslar va startaplar haqida mustaqil tahlillar va qo'llanmalar.",
-  tagline: "O'zbekistondagi eng yaxshilarini tanlash",
+    "O'zbekiston brendlarining kategoriyalar bo'yicha reytingi (o'rinlar to'lov asosida shakllanadi) va tanlash bo'yicha tahririyat maqolalari.",
+  tagline: "O'zbekiston brendlari reytingi",
   keywords: [
     "top reyting",
     "eng yaxshi klinikalar",

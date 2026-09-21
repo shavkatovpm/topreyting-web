@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local db
+/prisma/*.db
+/prisma/*.db-journal
+
+# uploaded receipts (private)
+/storage
+
+# env namunasi git'da qoladi
+!.env.example

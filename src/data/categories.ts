@@ -9,6 +9,7 @@ import {
   Scale,
   Sparkles,
   Code,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { getCategorySlugsWithListings } from "./listings";
@@ -141,6 +142,12 @@ export const categories: Category[] = [
 
 export function getCategory(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
+}
+
+/** Ikonka va rang: tayyor kategoriyalar uchun statik, admin yaratganlar uchun standart. */
+export function getCategoryVisual(slug: string): { icon: LucideIcon; color: string } {
+  const c = getCategory(slug);
+  return { icon: c?.icon ?? Trophy, color: c?.color ?? "from-emerald-500 to-teal-500" };
 }
 
 /** Categories that have at least one listing OR at least one article. Used for header dropdown. */

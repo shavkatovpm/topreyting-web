@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { JoinModalHost } from "@/components/join/join-modal-host";
 import { JsonLd } from "@/components/json-ld";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
@@ -56,6 +57,7 @@ export default async function LangLayout({
       <Header lang={locale} />
       <main className="flex-1">{children}</main>
       <Footer lang={locale} />
+      <JoinModalHost lang={locale} />
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
     </>
   );
