@@ -12,7 +12,6 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
-import { getCategorySlugsWithListings } from "./listings";
 
 export type Category = {
   slug: string;
@@ -148,16 +147,4 @@ export function getCategory(slug: string): Category | undefined {
 export function getCategoryVisual(slug: string): { icon: LucideIcon; color: string } {
   const c = getCategory(slug);
   return { icon: c?.icon ?? Trophy, color: c?.color ?? "from-emerald-500 to-teal-500" };
-}
-
-/** Categories that have at least one listing OR at least one article. Used for header dropdown. */
-export function getActiveCategorySlugs(articleCategorySlugs: string[] = []): string[] {
-  const fromListings = getCategorySlugsWithListings();
-  const set = new Set<string>([...fromListings, ...articleCategorySlugs]);
-  return Array.from(set);
-}
-
-export function getActiveCategories(articleCategorySlugs: string[] = []): Category[] {
-  const slugs = new Set(getActiveCategorySlugs(articleCategorySlugs));
-  return categories.filter((c) => slugs.has(c.slug));
 }

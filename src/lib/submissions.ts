@@ -1,4 +1,5 @@
 import "server-only";
+import type { Prisma } from "@/generated/prisma/client";
 import type { SubmissionBrandData } from "@/lib/submission-validation";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
@@ -30,6 +31,11 @@ export async function approveSubmission(
     const amount = opts.amount ?? sub.amount;
     const check = validatePaymentAmount(amount, settings.minPaymentAmount);
     if (!check.ok) return { ok: false, reason: "amount", message: check.error };
+
+    // Mavjud brendga «hissa oshirish»: brend yaratilmaydi, faqat to'lov yoziladi
+    if ((sub.data as { kind?: string } | null)?.kind === "boost") {
+      return approveBoost(tx, sub, adminId, amount);
+    }
 
     // Bir vaqtda ikki admin bossa: faqat bittasi PENDING -> APPROVED qila oladi
     const claimed = await tx.submission.updateMany({
@@ -109,6 +115,68 @@ export async function approveSubmission(
 
   if (result.ok) revalidatePublic();
   return result;
+}
+
+async function approveBoost(
+  tx: Prisma.TransactionClient,
+  sub: { id: string; brandId: string | null; categoryId: string; amount: bigint; category: { slug: string; name: string } },
+  adminId: string,
+  amount: bigint
+): Promise<ApproveResult> {
+  const bc = sub.brandId
+    ? await tx.brandCategory.findUnique({
+        where: { brandId_categoryId: { brandId: sub.brandId, categoryId: sub.categoryId } },
+        include: { brand: true },
+      })
+    : null;
+  if (!bc || bc.brand.status === "DELETED") {
+    return { ok: false, reason: "not_found", message: "Brend yoki kategoriya topilmadi" };
+  }
+
+  const claimed = await tx.submission.updateMany({
+    where: { id: sub.id, status: "PENDING" },
+    data: { status: "APPROVED", reviewedById: adminId, reviewedAt: new Date() },
+  });
+  if (claimed.count === 0) {
+    return { ok: false, reason: "already", message: "Ariza allaqachon ko'rib chiqilgan" };
+  }
+
+  const today = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z");
+  const payment = await tx.payment.create({
+    data: {
+      brandCategoryId: bc.id,
+      amount,
+      paymentDate: today,
+      reference: `SUB-${sub.id}`,
+      note: "Hissa oshirish (sayt orqali)",
+      createdById: adminId,
+    },
+  });
+  const state = await recomputeBrandCategory(tx, bc.id);
+  await logAudit(tx, {
+    adminId,
+    action: "SUBMISSION_APPROVED",
+    entityType: "Submission",
+    entityId: sub.id,
+    newValue: {
+      boost: true,
+      brand: bc.brand.name,
+      category: sub.category.name,
+      amount: formatSom(amount),
+      declared: formatSom(sub.amount),
+      totalAfter: formatSom(state.totalPaid),
+      paymentId: payment.id,
+    },
+  });
+
+  return {
+    ok: true,
+    brandId: bc.brandId,
+    brandName: bc.brand.name,
+    categorySlug: sub.category.slug,
+    brandSlug: bc.brand.slug,
+    amount,
+  };
 }
 
 export async function rejectSubmission(id: string, adminId: string, reason: string) {

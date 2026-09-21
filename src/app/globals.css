@@ -1,3 +1,5 @@
+/* Qatlamlar tartibi: Navy bosh sahifa qoidalari (nv) Tailwind utilities'dan PAST turadi. */
+@layer theme, base, components, nv, utilities;
 @import "tailwindcss";
 @import "tw-animate-css";
 

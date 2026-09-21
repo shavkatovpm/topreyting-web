@@ -36,6 +36,12 @@ Eslatma: `.env`, `prisma/dev.db`, `storage/` (chek fayllari) git'ga tushmaydi. W
 - `src/components/join/*` — «Reytingga qo'shilish» modali.
 - `prisma/schema.prisma` — ma'lumotlar modeli; `src/proxy.ts` — til va `/admin` yo'naltirishi.
 
+## Bosh sahifa dizayni (Navy)
+- Bosh sahifa `src/app/[lang]/(home)/` da (Navy dizayn: `topreyting-ui-preview/index.html` dan). Ichki sahifalar `src/app/[lang]/(site)/` da, umumiy sayt dizaynida qoladi (route group, URL o'zgarmaydi).
+- `navy.css` — dizayn CSS'ining **mexanik ko'chirmasi** (skript bilan: `.nv` scope, `--nv-*` o'zgaruvchilar, `@layer nv`). Unga qo'lda tegmang; o'zgartirishlar `navy-extra.css` da. `globals.css` boshidagi `@layer theme, base, components, nv, utilities;` tartibi muhim: shunda umumiy komponentlardagi Tailwind klasslari (ArticleCard, JoinModal) Navy qoidalarini bosib ketadi.
+- Umumiy komponentlar Navy'da loyiha tokenlari (`--background`, `--primary`, ...) `navy-extra.css` da `.nv` ichida qayta yozilgani uchun mos rangga o'tadi.
+- Jadval va sticky panel (kategoriya dropdown + qidiruv): `src/components/home/home-board.tsx`; ma'lumot: `getHomeBoard()` (`src/lib/public-data.ts`). «Hissa oshirish» — mavjud brendga qo'shimcha to'lov: modal 2 bosqichli rejimda ochiladi, ariza `data.kind = "boost"`, tasdiqlanganda faqat to'lov yoziladi (`approveBoost`).
+
 ## Nima qoldi
 **Sizdan kutilyapti:** droplet ma'lumotlari (IP, domen DNS), Telegram bot tokeni + guruh ID + adminlarning Telegram ID'lari, to'lov rekvizitlari (admin: Sozlamalar), `shartlar` / `maxfiylik` / `reklama` sahifalarini ko'rib chiqish (hali eski "sharh" modeli haqida yozadi).
 

@@ -34,6 +34,7 @@ function panelUrl(id: string): string | null {
 }
 
 export function submissionCaption(s: {
+  kind?: "new" | "boost";
   brandName: string;
   category: string;
   amount: string;
@@ -42,15 +43,16 @@ export function submissionCaption(s: {
   shortDescription: string;
 }) {
   return [
-    "🆕 <b>Yangi ariza</b>",
+    s.kind === "boost" ? "💸 <b>Hissa oshirish</b>" : "🆕 <b>Yangi ariza</b>",
     `<b>Brend:</b> ${esc(s.brandName)}`,
     `<b>Kategoriya:</b> ${esc(s.category)}`,
     `<b>Summa:</b> ${esc(s.amount)}`,
     `<b>Aloqa:</b> ${esc(s.contactName)}, ${esc(s.contactPhone)}`,
     "",
-    esc(s.shortDescription.slice(0, 300)),
-    "",
-    "Chekni tekshiring. «Tasdiqlash» bosilsa to'lov tushadi va e'lon avtomatik joylanadi.",
+    ...(s.shortDescription ? [esc(s.shortDescription.slice(0, 300)), ""] : []),
+    s.kind === "boost"
+      ? "Chekni tekshiring. «Tasdiqlash» bosilsa to'lov brendning jami hissasiga qo'shiladi va muddat yangilanadi."
+      : "Chekni tekshiring. «Tasdiqlash» bosilsa to'lov tushadi va e'lon avtomatik joylanadi.",
   ].join("\n");
 }
 

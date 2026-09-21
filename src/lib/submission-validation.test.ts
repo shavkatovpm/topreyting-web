@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { detectReceiptType, normalizeUrl, validateSubmission } from "./submission-validation.ts";
+import { detectReceiptType, normalizeUrl, validateBoost, validateSubmission } from "./submission-validation.ts";
 
 const good = {
   name: "Najot Ta'lim",
@@ -53,6 +53,30 @@ test("havolalar: faqat http(s), @nom to'liq havolaga aylanadi", () => {
   assert.equal(normalizeUrl("@najot", "instagram"), "https://instagram.com/najot");
   assert.equal(normalizeUrl("@najot", "site"), null);
   assert.equal(normalizeUrl("najot uz", "site"), null);
+});
+
+test("hissa oshirish: faqat aloqa, summa va brend/kategoriya kerak", () => {
+  const boost = {
+    boostBrandId: "clx1234567890abcdefghijkl",
+    categorySlug: "bizneslar",
+    contactName: "Ali",
+    contactPhone: "+998 90 123 45 67",
+    agree: "on",
+    amount: "60 000",
+  };
+  const code = (patch: Record<string, unknown>) => {
+    const r = validateBoost({ ...boost, ...patch }, MIN);
+    return r.ok ? "ok" : r.code;
+  };
+  const ok = validateBoost(boost, MIN);
+  assert.equal(ok.ok, true);
+  if (ok.ok) assert.equal(ok.value.amount, 60_000n);
+  assert.equal(code({ boostBrandId: "" }), "category");
+  assert.equal(code({ categorySlug: "" }), "category");
+  assert.equal(code({ contactName: "" }), "contact");
+  assert.equal(code({ agree: undefined }), "agree");
+  assert.equal(code({ amount: "49 999" }), "amount"); // minimal summa bu yerda ham
+  assert.equal(code({ amount: "-5" }), "amount");
 });
 
 test("chek turi fayl mazmunidan aniqlanadi (nomiga ishonilmaydi)", () => {

@@ -147,6 +147,37 @@ export function validateSubmission(
   };
 }
 
+export type ValidBoost = {
+  brandId: string;
+  categorySlug: string;
+  contactName: string;
+  contactPhone: string;
+  amount: bigint;
+};
+
+/** «Hissa oshirish»: mavjud brendga qo'shimcha to'lov. Brend ma'lumotlari qayta so'ralmaydi. */
+export function validateBoost(
+  f: Record<string, unknown>,
+  minAmount: bigint
+): { ok: true; value: ValidBoost } | { ok: false; code: SubmissionErrorCode } {
+  const brandId = clean(f.boostBrandId, 40);
+  const categorySlug = clean(f.categorySlug, 60);
+  if (!brandId || !categorySlug) return { ok: false, code: "category" };
+
+  const contactName = clean(f.contactName, 80);
+  const contactPhone = clean(f.contactPhone, 80);
+  if (contactName.length < 2 || contactPhone.length < 5) return { ok: false, code: "contact" };
+
+  if (!(f.agree === "on" || f.agree === "true" || f.agree === true)) return { ok: false, code: "agree" };
+
+  const digits = clean(f.amount, 20).replace(/[\s,._]/g, "");
+  if (!/^\d{1,15}$/.test(digits)) return { ok: false, code: "amount" };
+  const amount = BigInt(digits);
+  if (!validatePaymentAmount(amount, minAmount).ok) return { ok: false, code: "amount" };
+
+  return { ok: true, value: { brandId, categorySlug, contactName, contactPhone, amount } };
+}
+
 /** Fayl mazmuniga qarab turi (mijoz yuborgan Content-Type'ga ishonilmaydi). */
 export function detectReceiptType(
   buf: Uint8Array

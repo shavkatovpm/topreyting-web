@@ -9,7 +9,9 @@ import { sendSubmissionToGroup, submissionCaption } from "@/lib/telegram";
 import {
   MAX_RECEIPT_BYTES,
   detectReceiptType,
+  validateBoost,
   validateSubmission,
+  type SubmissionBrandData,
   type SubmissionErrorCode,
 } from "@/lib/submission-validation";
 
@@ -49,8 +51,25 @@ export async function POST(req: Request) {
   for (const [k, v] of form.entries()) if (typeof v === "string") fields[k] = v;
 
   const settings = await getSettings();
-  const parsed = validateSubmission(fields, settings.minPaymentAmount);
-  if (!parsed.ok) return fail(parsed.code, 422);
+
+  // Ikki xil ariza: yangi brend yoki mavjud brendga «hissa oshirish» (boostBrandId bor)
+  const isBoost = typeof fields.boostBrandId === "string" && fields.boostBrandId.length > 0;
+  const boostParsed = isBoost ? validateBoost(fields, settings.minPaymentAmount) : null;
+  const newParsed = isBoost ? null : validateSubmission(fields, settings.minPaymentAmount);
+  if (boostParsed && !boostParsed.ok) return fail(boostParsed.code, 422);
+  if (newParsed && !newParsed.ok) return fail(newParsed.code, 422);
+
+  const v = boostParsed?.ok
+    ? {
+        categorySlug: boostParsed.value.categorySlug,
+        contactName: boostParsed.value.contactName,
+        contactPhone: boostParsed.value.contactPhone,
+        amount: boostParsed.value.amount,
+      }
+    : newParsed!.ok
+      ? newParsed!.value
+      : null;
+  if (!v) return fail("server", 500);
 
   const file = form.get("receipt");
   if (!(file instanceof File) || file.size === 0) return fail("receiptMissing", 422);
@@ -60,9 +79,24 @@ export async function POST(req: Request) {
   if (!type) return fail("receiptType", 422);
 
   const category = await db.category.findFirst({
-    where: { slug: parsed.value.categorySlug, status: "ACTIVE" },
+    where: { slug: v.categorySlug, status: "ACTIVE" },
   });
   if (!category) return fail("category", 422);
+
+  // Hissa oshirish: brend shu kategoriyada haqiqatan mavjud va faol bo'lishi shart
+  let brandSummary: SubmissionBrandData;
+  let boostBrandId: string | null = null;
+  if (boostParsed?.ok) {
+    const bc = await db.brandCategory.findFirst({
+      where: { brandId: boostParsed.value.brandId, categoryId: category.id, brand: { status: "ACTIVE" } },
+      include: { brand: true },
+    });
+    if (!bc) return fail("category", 422);
+    boostBrandId = bc.brandId;
+    brandSummary = { name: bc.brand.name, shortDescription: "", fullDescription: "", services: [] };
+  } else {
+    brandSummary = newParsed!.ok ? newParsed!.value.brand : ({} as SubmissionBrandData);
+  }
 
   if ((await db.submission.count({ where: { status: "PENDING" } })) >= MAX_PENDING) {
     return fail("rate", 429);
@@ -74,10 +108,12 @@ export async function POST(req: Request) {
     const sub = await db.submission.create({
       data: {
         categoryId: category.id,
-        data: parsed.value.brand,
-        contactName: parsed.value.contactName,
-        contactPhone: parsed.value.contactPhone,
-        amount: parsed.value.amount,
+        // kind: "boost" — tasdiqlanganda faqat to'lov yoziladi, brend yaratilmaydi (src/lib/submissions.ts)
+        data: isBoost ? { kind: "boost", ...brandSummary } : { ...brandSummary },
+        brandId: boostBrandId,
+        contactName: v.contactName,
+        contactPhone: v.contactPhone,
+        amount: v.amount,
         receiptFile,
         receiptMime: type.mime,
         lang,
@@ -89,10 +125,10 @@ export async function POST(req: Request) {
     });
     await logAudit(db, {
       adminId: null,
-      action: "SUBMISSION_CREATED",
+      action: isBoost ? "SUBMISSION_BOOST_CREATED" : "SUBMISSION_CREATED",
       entityType: "Submission",
       entityId: sub.id,
-      newValue: { brand: parsed.value.brand.name, category: category.name, amount: formatSom(parsed.value.amount) },
+      newValue: { brand: brandSummary.name, category: category.name, amount: formatSom(v.amount) },
     });
 
     // Telegram xabari muvaffaqiyatsiz bo'lsa ham ariza saqlangan: u admin panelda ko'rinadi
@@ -100,12 +136,13 @@ export async function POST(req: Request) {
       const messageId = await sendSubmissionToGroup({
         id: sub.id,
         caption: submissionCaption({
-          brandName: parsed.value.brand.name,
+          kind: isBoost ? "boost" : "new",
+          brandName: brandSummary.name,
           category: category.name,
-          amount: formatSom(parsed.value.amount),
-          contactName: parsed.value.contactName,
-          contactPhone: parsed.value.contactPhone,
-          shortDescription: parsed.value.brand.shortDescription,
+          amount: formatSom(v.amount),
+          contactName: v.contactName,
+          contactPhone: v.contactPhone,
+          shortDescription: brandSummary.shortDescription,
         }),
         receipt: buf,
         mime: type.mime,

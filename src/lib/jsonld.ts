@@ -142,7 +142,10 @@ export function articleJsonLd(article: Article) {
 }
 
 /** Kategoriya ro'yxati: faqat tartib va havola, baho yo'q. */
-export function itemListJsonLd(brands: { name: string; slug: string }[], categorySlug: string) {
+export function itemListJsonLd(
+  brands: { name: string; slug: string; categorySlug?: string }[],
+  categorySlug?: string
+) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -150,7 +153,7 @@ export function itemListJsonLd(brands: { name: string; slug: string }[], categor
       "@type": "ListItem",
       position: i + 1,
       name: b.name,
-      url: `${site.url}/${categorySlug}/${b.slug}`,
+      url: `${site.url}/${b.categorySlug ?? categorySlug}/${b.slug}`,
     })),
   };
 }

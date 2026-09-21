@@ -27,7 +27,8 @@ export default async function SubmissionsPage({
       take: 20,
     }),
   ]);
-  const brandName = (d: unknown) => (d as SubmissionBrandData).name;
+  const brandName = (d: unknown) =>
+    (d as SubmissionBrandData).name + ((d as { kind?: string }).kind === "boost" ? " (hissa oshirish)" : "");
 
   return (
     <>

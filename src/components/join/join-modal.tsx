@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import type { Dictionary, Locale } from "@/i18n";
-import { OPEN_JOIN_EVENT } from "./join-button";
+import { OPEN_JOIN_EVENT, type BoostTarget } from "./join-button";
 
 type Join = Dictionary["join"];
 type Option = { slug: string; name: string };
@@ -43,12 +43,25 @@ const empty = {
 };
 type Fields = typeof empty;
 
-// Server qaytaradigan xato kodi qaysi bosqichga tegishli ekani
-const STEP_OF: Record<string, number> = {
-  name: 0, category: 0, short: 0, full: 0,
-  url: 1,
-  contact: 2, agree: 2,
-  amount: 3, receiptMissing: 3, receiptType: 3, receiptSize: 3,
+/**
+ * Yangi brend: brand -> contacts -> confirm -> pay (4 bosqich).
+ * Hissa oshirish (mavjud brend): boostContact -> pay (2 bosqich).
+ */
+type Screen = "brand" | "contacts" | "confirm" | "pay" | "boostContact";
+type Mode = "new" | "boost";
+const SCREENS: Record<Mode, Screen[]> = {
+  new: ["brand", "contacts", "confirm", "pay"],
+  boost: ["boostContact", "pay"],
+};
+
+// Server qaytaradigan xato kodi qaysi ekranga tegishli ekani
+const SCREEN_OF = (code: string, mode: Mode): Screen | null => {
+  if (["name", "short", "full"].includes(code)) return "brand";
+  if (code === "category") return mode === "boost" ? "boostContact" : "brand";
+  if (code === "url") return "contacts";
+  if (code === "contact" || code === "agree") return mode === "boost" ? "boostContact" : "confirm";
+  if (["amount", "receiptMissing", "receiptType", "receiptSize"].includes(code)) return "pay";
+  return null;
 };
 
 const input =
@@ -65,6 +78,9 @@ const money = (n: number, lang: Locale) =>
 
 export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths, paymentDetails }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [mode, setMode] = useState<Mode>("new");
+  const modeRef = useRef<Mode>("new");
+  const [boost, setBoost] = useState<BoostTarget | null>(null);
   const [step, setStep] = useState(0);
   const [f, setF] = useState<Fields>({ ...empty, amount: String(minAmount) });
   const [file, setFile] = useState<File | null>(null);
@@ -73,9 +89,17 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  const screens = SCREENS[mode];
+  const screen = screens[step];
+  const stepLabels = mode === "boost" ? t.boostSteps : t.steps;
+  const isLast = step === screens.length - 1;
+
   const set = <K extends keyof Fields>(k: K, v: Fields[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const reset = useCallback(() => {
+    modeRef.current = "new";
+    setMode("new");
+    setBoost(null);
     setStep(0);
     setF({ ...empty, amount: String(minAmount) });
     setFile(null);
@@ -83,32 +107,47 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
     setDone(false);
   }, [minAmount]);
 
-  // Sahifadagi istalgan "Reytingga qo'shilish" tugmasi oynani ochadi
+  // Sahifadagi istalgan tugma oynani ochadi: «Reytingga qo'shilish» yoki «Hissa oshirish»
   useEffect(() => {
     const onOpen = (e: Event) => {
-      const slug = (e as CustomEvent<{ categorySlug?: string }>).detail?.categorySlug;
-      if (slug && categories.some((c) => c.slug === slug)) setF((p) => ({ ...p, categorySlug: slug }));
+      const detail = (e as CustomEvent<{ categorySlug?: string; boost?: BoostTarget }>).detail;
+      if (detail?.boost) {
+        const target = detail.boost;
+        reset();
+        modeRef.current = "boost";
+        setMode("boost");
+        setBoost(target);
+        setF((p) => ({
+          ...p,
+          categorySlug: target.categorySlug ?? target.categories[0]?.slug ?? "",
+        }));
+      } else {
+        if (modeRef.current === "boost") reset(); // hissa oshirishdan yangi ariza rejimiga o'tish
+        const slug = detail?.categorySlug;
+        if (slug && categories.some((c) => c.slug === slug)) setF((p) => ({ ...p, categorySlug: slug }));
+      }
       dialogRef.current?.showModal();
     };
     window.addEventListener(OPEN_JOIN_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_JOIN_EVENT, onOpen);
-  }, [categories]);
+  }, [categories, reset]);
 
   const close = () => dialogRef.current?.close();
 
-  function validate(s: number): string | null {
+  function validate(s: Screen): string | null {
     const e = t.errors;
-    if (s === 0) {
+    if (s === "brand") {
       if (f.name.trim().length < 2) return e.name;
       if (!f.categorySlug) return e.category;
       if (f.shortDescription.trim().length < MIN_SHORT) return e.short;
       if (f.fullDescription.trim().length < MIN_FULL) return e.full;
     }
-    if (s === 2) {
+    if (s === "confirm" || s === "boostContact") {
+      if (s === "boostContact" && !f.categorySlug) return e.category;
       if (f.contactName.trim().length < 2 || f.contactPhone.trim().length < 5) return e.contact;
       if (!f.agree) return e.agree;
     }
-    if (s === 3) {
+    if (s === "pay") {
       const amount = Number(f.amount.replace(/[\s,._]/g, ""));
       if (!Number.isFinite(amount) || amount < minAmount) return e.amount;
       if (!file) return e.receiptMissing;
@@ -118,19 +157,29 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
   }
 
   function next() {
-    const err = validate(step);
+    const err = validate(screen);
     setError(err);
     if (!err) setStep((s) => s + 1);
   }
 
   async function submit() {
-    const err = validate(3);
+    const err = validate("pay");
     setError(err);
     if (err) return;
     setBusy(true);
     try {
       const fd = new FormData();
-      for (const [k, v] of Object.entries(f)) fd.set(k, typeof v === "boolean" ? (v ? "on" : "") : v);
+      if (mode === "boost" && boost) {
+        // Hissa oshirish: faqat brend/kategoriya, aloqa, summa va chek
+        fd.set("boostBrandId", boost.brandId);
+        fd.set("categorySlug", f.categorySlug);
+        fd.set("contactName", f.contactName);
+        fd.set("contactPhone", f.contactPhone);
+        fd.set("agree", f.agree ? "on" : "");
+        fd.set("amount", f.amount);
+      } else {
+        for (const [k, v] of Object.entries(f)) fd.set(k, typeof v === "boolean" ? (v ? "on" : "") : v);
+      }
       fd.set("receipt", file!);
       fd.set("lang", lang);
       fd.set("hp", hp);
@@ -141,7 +190,9 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
       } else {
         const code = json?.error ?? "server";
         setError((t.errors as Record<string, string>)[code] ?? t.errors.server);
-        if (code in STEP_OF) setStep(STEP_OF[code]);
+        const target = SCREEN_OF(code, mode);
+        const idx = target ? screens.indexOf(target) : -1;
+        if (idx >= 0) setStep(idx);
       }
     } catch {
       setError(t.errors.server);
@@ -153,6 +204,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
   const catName = categories.find((c) => c.slug === f.categorySlug)?.name ?? "";
   const label = "mb-1 block text-sm font-medium";
   const hint = "mt-1 block text-xs text-muted-foreground";
+  const title = mode === "boost" && boost ? t.boostTitle.replace("{name}", boost.name) : t.modalTitle;
 
   return (
     <dialog
@@ -168,10 +220,10 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
     >
       <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
         <div>
-          <h2 id="join-title" className="text-lg font-bold">{t.modalTitle}</h2>
+          <h2 id="join-title" className="text-lg font-bold">{title}</h2>
           {!done && (
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {t.step} {step + 1} {t.of} 4 · {t.steps[step]}
+              {t.step} {step + 1} {t.of} {screens.length} · {stepLabels[step]}
             </p>
           )}
         </div>
@@ -182,7 +234,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
 
       {!done && (
         <div className="flex gap-1.5 px-5 pt-4" aria-hidden>
-          {t.steps.map((s, i) => (
+          {stepLabels.map((s, i) => (
             <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-secondary"}`} />
           ))}
         </div>
@@ -209,7 +261,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
               className="absolute -left-[9999px] h-0 w-0 opacity-0"
             />
 
-            {step === 0 && (
+            {screen === "brand" && (
               <>
                 <div>
                   <label className={label} htmlFor="j-name">{t.name} *</label>
@@ -248,7 +300,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
               </>
             )}
 
-            {step === 1 && (
+            {screen === "contacts" && (
               <>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
@@ -288,7 +340,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
               </>
             )}
 
-            {step === 2 && (
+            {screen === "confirm" && (
               <>
                 <div className="rounded-xl border border-border bg-secondary/30 p-4 text-sm">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t.review}</p>
@@ -296,25 +348,31 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
                   <p className="text-muted-foreground">{catName}</p>
                   <p className="mt-2 line-clamp-3 text-muted-foreground">{f.shortDescription}</p>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className={label} htmlFor="j-cn">{t.contactName} *</label>
-                    <input id="j-cn" className={input} value={f.contactName} onChange={(e) => set("contactName", e.target.value)} />
-                  </div>
-                  <div>
-                    <label className={label} htmlFor="j-cp">{t.contactPhone} *</label>
-                    <input id="j-cp" className={input} value={f.contactPhone} onChange={(e) => set("contactPhone", e.target.value)} />
-                  </div>
-                </div>
-                <span className={hint}>{t.contactHint}</span>
-                <label className="flex items-start gap-2 text-sm">
-                  <input type="checkbox" className="mt-1" checked={f.agree} onChange={(e) => set("agree", e.target.checked)} />
-                  <span>{t.agree}</span>
-                </label>
+                {contactFields()}
               </>
             )}
 
-            {step === 3 && (
+            {screen === "boostContact" && boost && (
+              <>
+                <div className="rounded-xl border border-border bg-secondary/30 p-4 text-sm">
+                  <p className="text-base font-semibold">{boost.name}</p>
+                  <p className="mt-1 text-muted-foreground">{t.boostIntro}</p>
+                </div>
+                {boost.categories.length > 1 && (
+                  <div>
+                    <label className={label} htmlFor="j-bcat">{t.category} *</label>
+                    <select id="j-bcat" className={input} value={f.categorySlug} onChange={(e) => set("categorySlug", e.target.value)}>
+                      {boost.categories.map((c) => (
+                        <option key={c.slug} value={c.slug}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {contactFields()}
+              </>
+            )}
+
+            {screen === "pay" && (
               <>
                 <p className="text-sm text-muted-foreground">
                   {t.payIntro.replace("{min}", money(minAmount, lang)).replace("{months}", String(activeMonths))}
@@ -357,7 +415,7 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
           ) : (
             <span />
           )}
-          {step < 3 ? (
+          {!isLast ? (
             <button type="button" className={btnPrimary} onClick={next}>{t.next}</button>
           ) : (
             <button type="button" className={btnPrimary} onClick={submit} disabled={busy}>
@@ -368,4 +426,27 @@ export function JoinModal({ lang, t, categories, cities, minAmount, activeMonths
       )}
     </dialog>
   );
+
+  /** Aloqa ma'lumoti + rozilik (yangi brend 3-bosqichida va hissa oshirishning 1-bosqichida bir xil). */
+  function contactFields() {
+    return (
+      <>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={label} htmlFor="j-cn">{t.contactName} *</label>
+            <input id="j-cn" className={input} value={f.contactName} onChange={(e) => set("contactName", e.target.value)} />
+          </div>
+          <div>
+            <label className={label} htmlFor="j-cp">{t.contactPhone} *</label>
+            <input id="j-cp" className={input} value={f.contactPhone} onChange={(e) => set("contactPhone", e.target.value)} />
+          </div>
+        </div>
+        <span className={hint}>{t.contactHint}</span>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" className="mt-1" checked={f.agree} onChange={(e) => set("agree", e.target.checked)} />
+          <span>{t.agree}</span>
+        </label>
+      </>
+    );
+  }
 }

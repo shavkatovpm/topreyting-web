@@ -64,6 +64,124 @@ function rowsActive<T extends { totalPaid: bigint; activeUntil: Date | null; bra
   return rows.filter((r) => r.totalPaid > 0n && r.activeUntil !== null && r.activeUntil > now);
 }
 
+/** Bosh sahifa jadvali uchun brend (klientga uzatiladi: faqat oddiy, JSON-ga o'tadigan qiymatlar). */
+export type BoardBrand = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  logoUrl: string | null;
+  initial: string;
+  /** Logo rangi (0–360), nomdan deterministik */
+  hue: number;
+  /** Brend sahifasi: /{categorySlug}/{slug} */
+  categorySlug: string;
+  categoryName: string;
+  total: number;
+  rank: number;
+  tier: Tier;
+  /** To'lov muddati tugashiga qolgan kunlar */
+  daysLeft: number;
+  links: { site?: string; telegram?: string; instagram?: string };
+  /** «Hissa oshirish» uchun brend ishtirok etayotgan faol kategoriyalar */
+  categories: { slug: string; name: string }[];
+  /** Qidiruv uchun: nom va boshqa yozilishlar (kichik harfda) */
+  search: string;
+};
+
+export type BoardData = {
+  all: BoardBrand[];
+  byCategory: Record<string, BoardBrand[]>;
+  categories: { slug: string; name: string; count: number }[];
+};
+
+const hueOf = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+const daysUntil = (d: Date, now: Date) => Math.max(0, Math.ceil((d.getTime() - now.getTime()) / 86_400_000));
+
+/**
+ * Bosh sahifa: bitta so'rov bilan umumiy reyting ("Barchasi") va har bir kategoriya reytingi.
+ * Kategoriya tanlanganda o'rinlar shu kategoriya ichida hisoblanadi (kategoriya sahifasi bilan bir xil).
+ */
+export async function getHomeBoard(now = new Date()): Promise<BoardData> {
+  const rows = await db.brandCategory.findMany({
+    where: { brand: { status: "ACTIVE" }, category: { status: "ACTIVE" } },
+    include: { brand: true, category: true },
+  });
+  const active = rowsActive(rows, now);
+
+  const catsOf = new Map<string, { slug: string; name: string }[]>();
+  for (const r of active) {
+    catsOf.set(r.brandId, [...(catsOf.get(r.brandId) ?? []), { slug: r.category.slug, name: r.category.name }]);
+  }
+
+  const make = (
+    brand: Brand,
+    o: { rank: number; total: bigint; tier: Tier; activeUntil: Date; category: { slug: string; name: string } }
+  ): BoardBrand => {
+    const alts = Array.isArray(brand.alternateNames) ? (brand.alternateNames as string[]) : [];
+    return {
+      id: brand.id,
+      slug: brand.slug,
+      name: brand.name,
+      description: brand.shortDescription,
+      logoUrl: brand.logoUrl,
+      initial: brand.name.trim().charAt(0).toUpperCase() || "•",
+      hue: hueOf(brand.name),
+      categorySlug: o.category.slug,
+      categoryName: o.category.name,
+      total: Number(o.total),
+      rank: o.rank,
+      tier: o.tier,
+      daysLeft: daysUntil(o.activeUntil, now),
+      links: {
+        site: brand.websiteUrl ?? undefined,
+        telegram: brand.telegramUrl ?? undefined,
+        instagram: brand.instagramUrl ?? undefined,
+      },
+      categories: catsOf.get(brand.id) ?? [],
+      search: [brand.name, ...alts].join(" ").toLowerCase(),
+    };
+  };
+
+  // Umumiy reyting: brendning barcha faol kategoriyalaridagi summalar yig'indisi
+  const scores = globalScores(active, now);
+  const byBrand = new Map<string, typeof active>();
+  for (const r of active) byBrand.set(r.brandId, [...(byBrand.get(r.brandId) ?? []), r]);
+  const all = scores.map((s) => {
+    const list = byBrand.get(s.brandId)!;
+    const soonest = list.map((r) => r.activeUntil!).sort((a, b) => a.getTime() - b.getTime())[0];
+    return make(list[0].brand, {
+      rank: s.rank,
+      total: s.totalPaid,
+      tier: tierFor(s.rank, scores.length),
+      activeUntil: soonest,
+      category: { slug: list[0].category.slug, name: list[0].category.name },
+    });
+  });
+
+  // Kategoriya bo'yicha
+  const groups = new Map<string, typeof active>();
+  for (const r of active) groups.set(r.category.slug, [...(groups.get(r.category.slug) ?? []), r]);
+  const byCategory: Record<string, BoardBrand[]> = {};
+  const categories: BoardData["categories"] = [];
+  for (const [slug, list] of groups) {
+    const ranked = rankEntries(list, now);
+    byCategory[slug] = ranked.map((r) =>
+      make(r.brand, {
+        rank: r.rank,
+        total: r.totalPaid,
+        tier: tierFor(r.rank, ranked.length),
+        activeUntil: r.activeUntil!,
+        category: { slug, name: list[0].category.name },
+      })
+    );
+    categories.push({ slug, name: list[0].category.name, count: ranked.length });
+  }
+  categories.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+  return { all, byCategory, categories };
+}
+
 /** Kategoriya sahifasi: faqat shu kategoriyadagi faol brendlar, shu kategoriya summasi bo'yicha. */
 export async function getCategoryRanking(slug: string, now = new Date()) {
   const category = await db.category.findFirst({ where: { slug, status: "ACTIVE" } });

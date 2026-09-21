@@ -18,6 +18,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
   ]);
   if (!sub) notFound();
   const d = sub.data as unknown as SubmissionBrandData;
+  const isBoost = (sub.data as { kind?: string } | null)?.kind === "boost";
   const isPdf = sub.receiptMime === "application/pdf";
   const receiptUrl = `/admin/receipts/${sub.id}`;
 
@@ -37,7 +38,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
 
   return (
     <>
-      <PageHeader title={d.name} description={`Ariza · ${sub.status === "PENDING" ? "kutilmoqda" : sub.status === "APPROVED" ? "tasdiqlangan" : "rad etilgan"}`} />
+      <PageHeader title={d.name} description={`${isBoost ? "Hissa oshirish (mavjud brend, yangi e'lon yaratilmaydi) · " : "Ariza · "}${sub.status === "PENDING" ? "kutilmoqda" : sub.status === "APPROVED" ? "tasdiqlangan" : "rad etilgan"}`} />
       <p className="mb-4 text-sm">
         <Link href="/admin/submissions" className="text-primary hover:underline">
           ← Barcha arizalar
@@ -59,11 +60,13 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
                 ))}
             </dl>
           </Card>
-          <Card>
-            <h2 className="mb-2 font-semibold">Tavsif</h2>
-            <p className="mb-3 text-sm font-medium">{d.shortDescription}</p>
-            <p className="whitespace-pre-line text-sm text-muted-foreground">{d.fullDescription}</p>
-          </Card>
+          {!isBoost && (
+            <Card>
+              <h2 className="mb-2 font-semibold">Tavsif</h2>
+              <p className="mb-3 text-sm font-medium">{d.shortDescription}</p>
+              <p className="whitespace-pre-line text-sm text-muted-foreground">{d.fullDescription}</p>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -88,7 +91,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
                 <h2 className="mb-3 font-semibold">Tasdiqlash</h2>
                 <AdminForm
                   action={approveSubmissionAction.bind(null, sub.id)}
-                  submitLabel="Tasdiqlash va e'lonni joylash"
+                  submitLabel={isBoost ? "Tasdiqlash va to'lovni qo'shish" : "Tasdiqlash va e'lonni joylash"}
                   confirmText="Chek to'g'ri ekaniga ishonch hosil qildingizmi? Brend darhol saytda paydo bo'ladi."
                 >
                   <Field

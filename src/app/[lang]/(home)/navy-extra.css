@@ -1,0 +1,339 @@
+/*
+ * Navy bosh sahifa: qo'lda yozilgan qo'shimchalar (navy.css — mexanik ko'chirma, unga tegilmaydi).
+ */
+@layer nv {
+  /* Umumiy komponentlar (ArticleCard, JoinModal, LanguageToggle) loyiha tokenlaridan foydalanadi:
+     ularni shu sahifada Navy palitrasiga o'tkazamiz. */
+  .nv {
+    --background: #142339;
+    --foreground: #e8f0f8;
+    --card: #1c3249;
+    --card-foreground: #e8f0f8;
+    --popover: #1c3249;
+    --popover-foreground: #e8f0f8;
+    --primary: #a6d4f1;
+    --primary-foreground: #142339;
+    --secondary: #294760;
+    --secondary-foreground: #e8f0f8;
+    --muted: #294760;
+    --muted-foreground: #96aec4;
+    --accent: #294760;
+    --accent-foreground: #e8f0f8;
+    --border: #435e77;
+    --input: #435e77;
+    --ring: #a6d4f1;
+    --gold: #a6d4f1;
+    min-height: 100vh;
+    font-family: var(--nv-font);
+  }
+
+  /* Haqiqiy ma'lumotdagi uzun tavsiflar qatorni cho'zib yubormasligi uchun */
+  .nv .premium-row .row-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Brend nomi endi haqiqiy sahifaga havola */
+  .nv .brandline h3 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .nv .language svg,
+  .nv .footer-lang svg {
+    width: 14px;
+    height: 14px;
+    color: var(--nv-blue);
+  }
+
+  /* Maqolalar bo'limi (ArticleCard) — dizaynga mos sarlavha (yon padding .wrap'dan keladi) */
+  .nv .articles {
+    padding-top: 8px;
+    padding-bottom: 40px;
+  }
+  .nv .articles h2 {
+    font-family: var(--nv-heading);
+    font-size: 20px;
+    letter-spacing: -0.6px;
+    margin: 0 0 6px;
+  }
+  .nv .articles .articles-sub {
+    font-size: 11px;
+    color: var(--nv-muted);
+    margin: 0 0 22px;
+  }
+
+  /* Qoidalar oynasi */
+  .nv dialog.nv-dialog p {
+    margin: 0 0 12px;
+  }
+  .nv dialog.nv-dialog .modal-copy {
+    margin-top: 16px;
+  }
+
+  /* Footer havolalari <a> (dizaynda <button> edi) */
+  .nv .footer-links a:hover {
+    color: var(--nv-ink);
+  }
+  .nv .board-note button {
+    cursor: pointer;
+  }
+}
+
+/*
+ * Til almashtirgich (mavjud komponent, Tailwind klasslari bilan): dizayndagi oddiy .language ko'rinishiga.
+ * Qatlamsiz yozilgan, chunki @layer utilities (border, h-10, bg-background) dan kuchli bo'lishi kerak.
+ */
+.nv .language button,
+.nv .footer-lang button {
+  height: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--nv-muted);
+  box-shadow: none;
+}
+.nv .language button:hover,
+.nv .footer-lang button:hover {
+  background: transparent;
+  color: var(--nv-ink);
+}
+/* ===== Sticky navbar + kategoriya paneli + dropdown ===== */
+@layer nv {
+  .nv {
+    --nv-header-h: 79px; /* .nav (78px) + 1px chegara */
+    --nv-bar-h: 64px;
+  }
+
+  .nv > .header,
+  .nv > .cat-bar {
+    position: sticky;
+    z-index: 50;
+    background: #142339d9;
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+  }
+  .nv > .header {
+    top: 0;
+  }
+  .nv > .cat-bar {
+    top: var(--nv-header-h);
+    z-index: 45;
+    border-bottom: 1px solid #4f6a8138;
+  }
+  /* Ankor havolalar (#reyting, #qanday) sticky panellar ostida qolib ketmasin */
+  .nv [id="reyting"],
+  .nv [id="qanday"] {
+    scroll-margin-top: calc(var(--nv-header-h) + var(--nv-bar-h) + 14px);
+  }
+
+  .nv .catbar-inner {
+    height: var(--nv-bar-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .nv .catbar-inner .search {
+    width: 260px;
+    flex: 0 1 260px;
+    min-width: 0;
+  }
+
+  .nv .catdrop {
+    position: relative;
+    min-width: 0;
+  }
+  .nv .catdrop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 100%;
+    padding: 10px 13px 10px 16px;
+    border-radius: 25px;
+    border: 1px solid #5d769044;
+    background: #2f4c68;
+    color: #d6eaff;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: inset 0 1px #9ab6d32e, 0 4px 9px #07142340;
+    transition: background 0.18s, border-color 0.18s;
+  }
+  .nv .catdrop-btn:hover,
+  .nv .catdrop-btn.open {
+    background: #365670;
+    border-color: #7896b45c;
+  }
+  .nv .catdrop-btn > svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .nv .catdrop-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .nv .catdrop-btn .count,
+  .nv .catdrop-item .count {
+    font-size: 9px;
+    background: #203a53;
+    color: #b9d7f1;
+    border-radius: 6px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+  .nv .catdrop-chevron {
+    display: grid;
+    place-items: center;
+    transition: transform 0.2s;
+  }
+  .nv .catdrop-chevron svg {
+    width: 15px;
+    height: 15px;
+  }
+  .nv .catdrop-btn.open .catdrop-chevron {
+    transform: rotate(180deg);
+  }
+
+  .nv .catdrop-panel {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    z-index: 60;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    max-height: min(62vh, 460px);
+    overflow: auto;
+    padding: 8px;
+    border-radius: 18px;
+    border: 1px solid #6485a064;
+    background: linear-gradient(150deg, #243f59, #182c42);
+    box-shadow: 0 18px 44px #06152466, inset 0 1px #bcd7ed14;
+    overscroll-behavior: contain;
+  }
+  .nv .catdrop-panel[hidden] {
+    display: none;
+  }
+  .nv .catdrop-title {
+    margin: 6px 10px 8px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9eb7cc;
+  }
+  .nv .catdrop-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 46px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #c9dff0;
+    transition: background 0.15s;
+  }
+  .nv .catdrop-item:hover,
+  .nv .catdrop-item:focus-visible {
+    background: #294760;
+    color: #fff;
+  }
+  .nv .catdrop-item:focus-visible {
+    outline: 2px solid #a6d4f1;
+    outline-offset: -2px;
+  }
+  .nv .catdrop-item.selected {
+    background: #2f4c68;
+    color: #fff;
+    font-weight: 650;
+  }
+  .nv .catdrop-icon {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid #62809b45;
+    background: #12283b70;
+    color: #a3c2dc;
+  }
+  .nv .catdrop-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+  .nv .catdrop-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nv .catdrop-check {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    color: #a6d4f1;
+  }
+  .nv .catdrop-check svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Footer: kategoriya havolalari (ichki linklar) */
+  .nv .footer-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 10px;
+    color: var(--nv-muted);
+    width: 100%;
+  }
+  .nv .footer-cats a:hover {
+    color: var(--nv-ink);
+  }
+
+  @media (max-width: 560px) {
+    .nv {
+      --nv-header-h: 70px;
+      --nv-bar-h: 58px;
+    }
+    .nv .catbar-inner {
+      gap: 8px;
+    }
+    .nv .catdrop {
+      position: static;
+      flex: 1 1 0;
+    }
+    .nv .catdrop-btn {
+      width: 100%;
+      padding: 10px 12px;
+    }
+    .nv .catdrop-label {
+      flex: 1;
+      text-align: left;
+    }
+    .nv .catbar-inner .search {
+      flex: 1 1 0;
+      width: auto;
+    }
+    .nv .catdrop-panel {
+      left: 16px;
+      right: 16px;
+      width: auto;
+      max-width: none;
+      top: calc(100% + 6px);
+    }
+  }
+}
+@layer nv {
+  .nv footer .wrap {
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+}

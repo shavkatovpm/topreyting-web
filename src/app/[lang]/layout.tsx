@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { JoinModalHost } from "@/components/join/join-modal-host";
 import { JsonLd } from "@/components/json-ld";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { site } from "@/lib/site";
@@ -52,12 +49,11 @@ export default async function LangLayout({
   if (!isLocale(lang)) notFound();
   const locale: Locale = lang;
 
+  // Header/Footer har bir bo'limning o'z layout'ida: (site) — umumiy sayt, (home) — Navy bosh sahifa
+  void locale;
   return (
     <>
-      <Header lang={locale} />
-      <main className="flex-1">{children}</main>
-      <Footer lang={locale} />
-      <JoinModalHost lang={locale} />
+      {children}
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
     </>
   );
