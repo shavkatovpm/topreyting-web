@@ -11,6 +11,7 @@ import {
   CheckIcon,
   ChevronIcon,
   CupIcon,
+  CrownIcon,
   GlobeIcon,
   GridIcon,
   InstagramIcon,
@@ -261,7 +262,13 @@ function Row({ b }: { b: BoardBrand }) {
   return (
     <article className={cls}>
       <div className="row-rank" aria-label={`${b.rank}${t.rankAria}`}>
+        {b.rank === 1 && <CrownIcon />}
         <span>{b.rank}</span>
+        {premium && (
+          <span className="premium-badge">
+            {b.rank === 1 ? t.leader : b.rank === 2 ? t.runnerUp : t.thirdPlace}
+          </span>
+        )}
       </div>
       <div className="brandline">
         <div
@@ -280,11 +287,6 @@ function Row({ b }: { b: BoardBrand }) {
             <h3>
               <Link href={localeHref(lang, `/${b.categorySlug}/${b.slug}`)}>{b.name}</Link>
             </h3>
-            {premium && (
-              <span className="premium-badge">
-                <CupIcon /> {b.rank === 1 ? t.leader : t.premium}
-              </span>
-            )}
           </div>
           <p className={showDeadline ? "deadline" : ""}>
             {showDeadline ? `◷ ${t.removeIn} ${b.daysLeft} ${t.removeDays}` : b.categoryName}

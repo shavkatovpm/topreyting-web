@@ -22,6 +22,9 @@ export const SearchIcon = () => (
 export const CupIcon = () => (
   <svg {...base}><path d="M7 3h10v7a5 5 0 0 1-10 0V3ZM7 5H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 15v6m-4 0h8" /></svg>
 );
+export const CrownIcon = () => (
+  <svg {...base}><path d="m3 6 4.5 4L12 3l4.5 7L21 6l-2 12H5L3 6ZM5 21h14" /></svg>
+);
 export const GridIcon = () => (
   <svg {...base}><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
 );

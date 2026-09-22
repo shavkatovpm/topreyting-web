@@ -153,6 +153,8 @@ export const uz = {
     colLinks: "HAVOLALAR",
     colTotal: "JAMI HISSA",
     leader: "YETAKCHI",
+    runnerUp: "PESHQADAM",
+    thirdPlace: "KUCHLI UCHLIK",
     premium: "PREMIUM",
     contribution: "Jami qo‘shilgan hissa",
     som: "so‘m",

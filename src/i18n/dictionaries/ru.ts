@@ -155,6 +155,8 @@ export const ru: Dictionary = {
     colLinks: "ССЫЛКИ",
     colTotal: "СУММАРНЫЙ ВКЛАД",
     leader: "ЛИДЕР",
+    runnerUp: "ВИЦЕ-ЛИДЕР",
+    thirdPlace: "ТОП-ТРОЙКА",
     premium: "ПРЕМИУМ",
     contribution: "Суммарный вклад",
     som: "сум",

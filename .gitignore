@@ -51,3 +51,6 @@ next-env.d.ts
 
 # env namunasi git'da qoladi
 !.env.example
+
+# Claude Code mahalliy ruxsat/sozlamalari (tarkibida token bo'lishi mumkin)
+/.claude/settings.local.json

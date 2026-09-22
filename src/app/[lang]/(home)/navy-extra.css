@@ -1,6 +1,17 @@
 /*
  * Navy bosh sahifa: qo'lda yozilgan qo'shimchalar (navy.css — mexanik ko'chirma, unga tegilmaydi).
  */
+/*
+ * Sahifa orqa foni: html/body umumiy tokendan oq qoladi, shu sabab scroll (overscroll / rubber-band)
+ * va .nv yetib bormagan joylarda oq chiziq ko'rinardi. Faqat Navy sahifa uchun (:has), ichki sahifalarga tegmaydi.
+ */
+@layer nv {
+  html:has(.nv),
+  html:has(.nv) body {
+    background-color: #142339;
+  }
+}
+
 @layer nv {
   /* Umumiy komponentlar (ArticleCard, JoinModal, LanguageToggle) loyiha tokenlaridan foydalanadi:
      ularni shu sahifada Navy palitrasiga o'tkazamiz. */
@@ -332,8 +343,380 @@
   }
 }
 @layer nv {
+  /* Birinchi uch o'rin: bezaksiz, tekis raqamlar. */
+  .nv .premium-row .row-rank,
+  .nv .premium-row.rank-1 .row-rank {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #cee7f8;
+    font-weight: 600;
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .nv .premium-row .row-rank::after {
+    content: none;
+  }
+
+  .nv .premium-row.rank-1 .row-rank {
+    color: #e8c778;
+  }
+
+  .nv .premium-row.rank-1 {
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 8% 0%, #e8c77814, transparent 55%),
+      linear-gradient(115deg, #263e57, #152b42 75%);
+    border-color: #e8c778;
+    box-shadow: 0 12px 28px #07132340, inset 0 1px #fff1;
+    transition: background .18s, border-color .18s, box-shadow .18s;
+  }
+
+  /* Faqat chegara bo'ylab aylanadigan oltin nur. */
+  .nv .premium-row.rank-1::before {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: auto;
+    z-index: 1;
+    padding: 2px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--nv-border-angle), transparent 65%, #e8c77866 78%, #fff0bf 88%, transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: nv-border-orbit 6s linear infinite;
+  }
+
+  @keyframes nv-border-orbit {
+    to { --nv-border-angle: 360deg; }
+  }
+
+  .nv .premium-row.rank-1:hover,
+  .nv .premium-row.rank-1:focus-within {
+    background:
+      radial-gradient(ellipse at 8% 0%, #e8c7781f, transparent 55%),
+      linear-gradient(115deg, #304d69, #1c354e 75%);
+    border-color: #f3d995;
+    box-shadow: 0 14px 32px #07132355, inset 0 1px #f3d99533;
+  }
+
+  .nv .premium-row.rank-1 .logo {
+    border: 2px solid #e8c778;
+    box-shadow: 0 0 0 4px #e8c77812;
+    filter: none;
+  }
+
+  .nv .premium-row.rank-1 h3 {
+    color: #f7f1e3;
+    font-weight: 650;
+  }
+
+  .nv .premium-row.rank-1 .row-amount {
+    color: #f0d79d;
+  }
+
+  .nv .premium-row.rank-1 .socials a {
+    background: #e8c77808;
+    border-color: #e8c77833;
+    color: #ddcba4;
+    box-shadow: none;
+  }
+
+  .nv .premium-row.rank-1 .socials a:hover {
+    background: #e8c77818;
+    border-color: #e8c778;
+    color: #f3d995;
+  }
+
+  .nv .premium-row.rank-1 .boost {
+    background: #e8c778;
+    border-color: #e8c778;
+    color: #192c40;
+    box-shadow: none;
+    font-weight: 650;
+    transition: background .18s, border-color .18s;
+  }
+
+  .nv .premium-row.rank-1 .boost:hover {
+    background: #f3d995;
+    border-color: #f3d995;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv .premium-row.rank-1::before {
+      animation: none;
+      transform: none;
+      opacity: .4;
+    }
+
+    .nv .premium-row.rank-1,
+    .nv .premium-row.rank-1 .boost {
+      transition: none;
+    }
+  }
+
+  .nv .premium-row.rank-2 .row-rank {
+    color: #ced9e5;
+  }
+
+  .nv .premium-row.rank-2 {
+    border-color: #ced9e5;
+  }
+
+  .nv .premium-row.rank-2:hover {
+    background: linear-gradient(110deg, #335777, #24405a);
+    border-color: #e4ecf5;
+  }
+
+  .nv .premium-row.rank-3 .row-rank {
+    color: #dca782;
+  }
+
+  .nv .premium-row.rank-3 {
+    border-color: #dca782;
+  }
+
+  .nv .premium-row.rank-3:hover {
+    background: linear-gradient(110deg, #335777, #24405a);
+    border-color: #edbc99;
+  }
+
+  .nv .premium-row .row-rank span {
+    margin-top: 0;
+  }
+
+  .nv .premium-row .row-rank .premium-badge {
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 560px) {
+    .nv .premium-row .row-rank .premium-badge {
+      font-size: 6px;
+      letter-spacing: 0;
+      max-width: 38px;
+      white-space: normal;
+      text-align: center;
+    }
+  }
+
+  .nv .premium-row.rank-1 .row-rank {
+    height: auto;
+    gap: 6px;
+  }
+
+  .nv .premium-row.rank-1 .row-rank > svg {
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
+    fill: #e8c77826;
+    stroke: currentColor;
+    stroke-width: 1.6;
+  }
+
+  .nv .premium-row.rank-1 .row-rank .premium-badge {
+    font-size: 8px;
+    font-weight: 750;
+    letter-spacing: .06em;
+  }
+
+  @media (max-width: 560px) {
+    .nv .premium-row.rank-1 .row-rank > svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nv .premium-row.rank-1 .row-rank .premium-badge {
+      font-size: 6px;
+      letter-spacing: 0;
+    }
+  }
+
   .nv footer .wrap {
     flex-wrap: wrap;
     row-gap: 16px;
+  }
+}
+
+@property --nv-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Reyting kartalari: yagona o'lchamlar va aniq ustunlar. */
+@layer nv {
+  .nv .brand-row {
+    --row-logo-size: 44px;
+    --row-brand-gap: 12px;
+    column-gap: 16px;
+    padding: 22px 24px;
+  }
+
+  .nv .brand-row .brandline {
+    gap: var(--row-brand-gap);
+    align-items: center;
+  }
+
+  .nv .brand-row .logo {
+    width: var(--row-logo-size);
+    height: var(--row-logo-size);
+    font-size: 23px;
+  }
+
+  .nv .brand-row .brand-text { min-width: 0; }
+  .nv .brand-row .brandline h3 {
+    font-size: 15px;
+    line-height: 1.4;
+    letter-spacing: -.3px;
+  }
+  .nv .brand-row .brandline p {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .nv .brand-row .row-description {
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .nv .brand-row > .row-rank {
+    width: 100%;
+    align-self: center;
+    text-align: center;
+  }
+  .nv .premium-row .row-rank .premium-badge {
+    justify-content: center;
+    max-width: 100%;
+    text-align: center;
+    line-height: 1.4;
+    white-space: normal;
+  }
+  .nv .brand-row .row-amount {
+    font-size: 18px;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.4px;
+  }
+  .nv .brand-row .row-amount small {
+    display: block;
+    margin: 3px 0 0;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .nv .brand-row .contribution-label {
+    margin-top: 5px;
+    font-size: 9px;
+    line-height: 1.4;
+    white-space: normal;
+  }
+  .nv .brand-row .socials {
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .nv .brand-row .socials a {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+  .nv .brand-row .socials svg { width: 14px; height: 14px; }
+
+  @media (max-width: 1050px) {
+    .nv .brand-row { column-gap: 12px; padding: 20px 18px; }
+  }
+
+  @media (min-width: 561px) and (max-width: 800px) {
+    .nv .brand-row {
+      grid-template-columns: 54px minmax(0, 1fr) 124px 34px;
+      row-gap: 12px;
+      align-items: start;
+    }
+    .nv .brand-row > .row-rank { grid-row: 1 / 3; }
+    .nv .brand-row > .socials {
+      margin: 0;
+      padding-left: calc(var(--row-logo-size) + var(--row-brand-gap));
+    }
+    .nv .brand-row > .boost { align-self: start; margin-top: 5px; }
+  }
+
+  @media (max-width: 560px) {
+    .nv .list-head { display: none; }
+    .nv .brand-row,
+    .nv .premium-row.rank-1 {
+      --row-logo-size: 36px;
+      --row-brand-gap: 10px;
+      /* Chap: o'rin + brend + havolalar. O'ng: summa bloki + hissa oshirish tugmasi. */
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 12px 10px;
+      padding: 18px 12px;
+      min-height: 0;
+      align-items: center;
+    }
+    .nv .brand-row > .row-rank {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      align-self: center;
+    }
+    .nv .brand-row > .brandline {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .nv .brand-row .brandline h3 { font-size: 14px; }
+    .nv .brand-row .brandline p { font-size: 10px; }
+    .nv .brand-row .logo { font-size: 20px; }
+    .nv .brand-row > .row-amount {
+      grid-column: 3;
+      grid-row: 1;
+      align-self: center;
+      justify-self: end;
+      text-align: right;
+      font-size: 17px;
+    }
+    .nv .brand-row .row-amount small {
+      display: block;
+      margin: 3px 0 0;
+      font-size: 10px;
+    }
+    .nv .brand-row .contribution-label { font-size: 9px; margin-top: 3px; }
+    .nv .brand-row > .boost {
+      grid-column: 3;
+      grid-row: 2;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      justify-self: end;
+    }
+    .nv .brand-row > .socials {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 0;
+      margin: 0;
+      gap: 8px;
+    }
+    .nv .premium-row .row-rank .premium-badge,
+    .nv .premium-row.rank-1 .row-rank .premium-badge {
+      font-size: 6px;
+      letter-spacing: 0;
+      max-width: 44px;
+    }
   }
 }

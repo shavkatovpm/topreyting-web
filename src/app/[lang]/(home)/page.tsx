@@ -1,11 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArticleCard } from "@/components/cards/article-card";
 import { BoardProvider, Board, CategoryBar } from "@/components/home/home-board";
 import { AlertIcon, ArrowIcon, PlusIcon } from "@/components/home/icons";
 import { JoinButton } from "@/components/join/join-button";
 import { JsonLd } from "@/components/json-ld";
-import { getAllArticles } from "@/lib/articles";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/jsonld";
 import { getHomeBoard } from "@/lib/public-data";
 import { getSettings } from "@/lib/settings";
@@ -26,7 +23,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const t = dict.nv;
 
   const [board, settings] = await Promise.all([getHomeBoard(), getSettings()]);
-  const articles = getAllArticles(locale).slice(0, 6);
   const minText = `${spaced(settings.minPaymentAmount)} ${t.som}`;
   const min = spaced(settings.minPaymentAmount);
   const months = settings.activeMonths;
@@ -95,21 +91,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </p>
         </div>
       </main>
-
-      {articles.length > 0 && (
-        <section className="wrap articles" aria-labelledby="articles-title">
-          <h2 id="articles-title">{t.articles}</h2>
-          <p className="articles-sub">{t.articlesSub}</p>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {articles.map((a) => (
-              <ArticleCard key={a.slug} article={a} lang={locale} />
-            ))}
-          </div>
-          <p className="articles-sub" style={{ marginTop: 18 }}>
-            <Link href={localeHref(locale, "/maqolalar")}>{dict.common.allItems} →</Link>
-          </p>
-        </section>
-      )}
 
       <JsonLd
         data={[
