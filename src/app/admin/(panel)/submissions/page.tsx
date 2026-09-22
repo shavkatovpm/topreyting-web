@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { Inbox } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { formatSom } from "@/lib/ranking";
 import type { SubmissionBrandData } from "@/lib/submission-validation";
-import { Card, Notice, PageHeader, Table, td, th } from "../../_components/ui";
+import { EmptyState, Notice, PageHeader, Table, btnOutline, td, th, trHover } from "../../_components/ui";
 
 const stamp = (d: Date) => d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
 
@@ -41,7 +42,9 @@ export default async function SubmissionsPage({
 
       <h2 className="mb-3 text-lg font-semibold">Kutilmoqda ({pending.length})</h2>
       {pending.length === 0 ? (
-        <Card className="mb-8 text-sm text-muted-foreground">Kutilayotgan arizalar yo&apos;q</Card>
+        <div className="mb-8">
+          <EmptyState icon={Inbox} title="Kutilayotgan arizalar yo'q" description="Yangi ariza kelsa, shu yerda ko'rinadi." />
+        </div>
       ) : (
         <div className="mb-8">
           <Table>
@@ -56,13 +59,13 @@ export default async function SubmissionsPage({
             </thead>
             <tbody>
               {pending.map((s) => (
-                <tr key={s.id}>
+                <tr key={s.id} className={`${trHover} border-l-4 border-l-amber-400`}>
                   <td className={`${td} whitespace-nowrap text-muted-foreground`}>{stamp(s.createdAt)}</td>
                   <td className={`${td} font-medium`}>{brandName(s.data)}</td>
                   <td className={td}>{s.category.name}</td>
-                  <td className={td}>{formatSom(s.amount)}</td>
+                  <td className={`${td} font-medium tabular-nums`}>{formatSom(s.amount)}</td>
                   <td className={td}>
-                    <Link href={`/admin/submissions/${s.id}`} className="text-primary hover:underline">
+                    <Link href={`/admin/submissions/${s.id}`} className={btnOutline}>
                       Ko&apos;rish
                     </Link>
                   </td>
@@ -79,7 +82,7 @@ export default async function SubmissionsPage({
           <Table>
             <tbody>
               {recent.map((s) => (
-                <tr key={s.id}>
+                <tr key={s.id} className={trHover}>
                   <td className={`${td} whitespace-nowrap text-muted-foreground`}>
                     {s.reviewedAt ? stamp(s.reviewedAt) : "—"}
                   </td>

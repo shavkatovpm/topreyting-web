@@ -7,11 +7,11 @@ import { requireAdmin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { revalidatePublic } from "@/lib/revalidate";
 import { SLUG_PATTERN } from "@/lib/slug";
+import { deleteLogo, logoFileName, saveLogo } from "@/lib/storage";
+import { detectReceiptType } from "@/lib/submission-validation";
 import { firstError, formToObject, lines, type FormState } from "./shared";
 
-// Thin/dublikat sahifalarni oldini olish: nashr qilish uchun minimal kontent
-const MIN_SHORT = 50;
-const MIN_FULL = 200;
+const MAX_LOGO_BYTES = 3 * 1024 * 1024;
 
 const optUrl = z.string().url("To'g'ri havola kiriting (https://...)").max(300).optional();
 
@@ -19,9 +19,9 @@ const schema = z.object({
   name: z.string().min(2, "Kamida 2 belgi").max(100),
   slug: z.string().regex(SLUG_PATTERN, "Faqat kichik lotin harflari, raqam va tire").max(80),
   alternateNames: z.string().optional(),
-  logoUrl: optUrl,
-  shortDescription: z.string().min(20, "Kamida 20 belgi").max(300, "300 belgidan oshmasin"),
-  fullDescription: z.string().min(20, "Kamida 20 belgi").max(20000),
+  // Tavsif uzunligiga cheklov yo'q — nashr uchun yagona shart: logo + kamida bitta to'lov (pastda tekshiriladi)
+  shortDescription: z.string().max(300, "300 belgidan oshmasin").optional(),
+  fullDescription: z.string().max(20000).optional(),
   websiteUrl: optUrl,
   instagramUrl: optUrl,
   telegramUrl: optUrl,
@@ -33,16 +33,22 @@ const schema = z.object({
   yearFounded: z.coerce.number().int().min(1800).max(new Date().getFullYear()).optional(),
   services: z.string().optional(),
   features: z.string().optional(),
-  faqs: z.string().optional(), // har qator: "Savol | Javob"
+  faqsJson: z.string().optional(), // FaqEditor (client) yasagan JSON: [{q,a}]
   categoryIds: z.array(z.string()).min(1, "Kamida bitta kategoriya tanlang"),
   status: z.enum(["ACTIVE", "UNPUBLISHED"]),
 });
 
-function parseFaqs(v: string | undefined) {
-  return lines(v)
-    .map((l) => l.split("|").map((s) => s.trim()))
-    .filter((p) => p.length >= 2 && p[0] && p[1])
-    .map(([q, ...rest]) => ({ q, a: rest.join(" | ") }));
+const faqSchema = z.array(z.object({ q: z.string().min(1).max(200), a: z.string().min(1).max(2000) })).max(20);
+
+/** Noto'g'ri/bo'sh JSON kelsa xato bermaydi — shunchaki savol-javob bo'sh qoladi. */
+function parseFaqsJson(raw: string | undefined) {
+  if (!raw) return [];
+  try {
+    const parsed = faqSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [];
+  }
 }
 
 export async function saveBrand(
@@ -55,11 +61,13 @@ export async function saveBrand(
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { categoryIds, status, ...f } = parsed.data;
 
-  if (status === "ACTIVE") {
-    if (f.shortDescription.length < MIN_SHORT)
-      return { error: `Nashr uchun qisqa tavsif kamida ${MIN_SHORT} belgi bo'lsin` };
-    if (f.fullDescription.length < MIN_FULL)
-      return { error: `Nashr uchun to'liq tavsif kamida ${MIN_FULL} belgi bo'lsin (unikal, brendga xos matn)` };
+  // Yangi brend to'g'ridan-to'g'ri nashr qilinmaydi: to'lov faqat brend yaratilgandan
+  // KEYIN, alohida qadamda kiritiladi — shu tranzaksiyada hali bo'lishi mumkin emas.
+  if (status === "ACTIVE" && !id) {
+    return {
+      error:
+        "Yangi brendni bevosita nashr qilib bo'lmaydi. Avval «Yashirin» sifatida saqlang, to'lov kiritilgandan so'ng nashr qiling.",
+    };
   }
 
   const clash = await db.brand.findUnique({ where: { slug: f.slug } });
@@ -70,13 +78,28 @@ export async function saveBrand(
   });
   if (cats.length !== categoryIds.length) return { error: "Tanlangan kategoriya topilmadi" };
 
+  // Logo: fayl haqiqiy tasvirmi — kengaytmasiga emas, bayt tarkibiga qarab tekshiriladi
+  const logoFileEntry = formData.get("logoFile");
+  const removeLogo = formData.get("removeLogo") === "on";
+  let newLogoName: string | null = null;
+  if (logoFileEntry instanceof File && logoFileEntry.size > 0) {
+    if (logoFileEntry.size > MAX_LOGO_BYTES) {
+      return { error: `Logo hajmi ${Math.floor(MAX_LOGO_BYTES / 1024 / 1024)} MB dan oshmasin` };
+    }
+    const buf = new Uint8Array(await logoFileEntry.arrayBuffer());
+    const detected = detectReceiptType(buf);
+    if (!detected || detected.ext === "pdf") {
+      return { error: "Logo faqat JPG, PNG yoki WEBP bo'lishi kerak" };
+    }
+    newLogoName = await saveLogo(buf, detected.ext);
+  }
+
   const data = {
     name: f.name,
     slug: f.slug,
     alternateNames: lines(f.alternateNames),
-    logoUrl: f.logoUrl ?? null,
-    shortDescription: f.shortDescription,
-    fullDescription: f.fullDescription,
+    shortDescription: f.shortDescription ?? "",
+    fullDescription: f.fullDescription ?? "",
     websiteUrl: f.websiteUrl ?? null,
     instagramUrl: f.instagramUrl ?? null,
     telegramUrl: f.telegramUrl ?? null,
@@ -88,15 +111,17 @@ export async function saveBrand(
     yearFounded: f.yearFounded ?? null,
     services: lines(f.services),
     features: lines(f.features),
-    faqs: parseFaqs(f.faqs),
+    faqs: parseFaqsJson(f.faqsJson),
     status,
   };
 
   if (!id) {
+    const logoUrl = newLogoName ? `/logos/${newLogoName}` : null;
     const created = await db.$transaction(async (tx) => {
       const b = await tx.brand.create({
         data: {
           ...data,
+          logoUrl,
           createdById: admin.id,
           categories: { create: categoryIds.map((categoryId) => ({ categoryId })) },
         },
@@ -106,7 +131,7 @@ export async function saveBrand(
         action: "BRAND_CREATED",
         entityType: "Brand",
         entityId: b.id,
-        newValue: { ...data, categoryIds },
+        newValue: { ...data, logoUrl, categoryIds },
       });
       return b;
     });
@@ -116,7 +141,7 @@ export async function saveBrand(
 
   const old = await db.brand.findUnique({
     where: { id },
-    include: { categories: { include: { payments: { select: { id: true } } } } },
+    include: { categories: { include: { payments: { select: { status: true } } } } },
   });
   if (!old || old.status === "DELETED") return { error: "Brend topilmadi" };
 
@@ -124,6 +149,26 @@ export async function saveBrand(
   const removed = old.categories.filter((bc) => !categoryIds.includes(bc.categoryId));
   if (removed.some((bc) => bc.payments.length > 0)) {
     return { error: "To'lov tarixi bor kategoriyadan brendni olib tashlab bo'lmaydi" };
+  }
+
+  // Eski logo fayli almashtirilganda yoki olib tashlanganda o'chiriladi (bizniki bo'lsagina —
+  // qo'lda kiritilgan tashqi URL bo'lsa tegilmaydi).
+  let logoUrl = old.logoUrl;
+  if (newLogoName) {
+    const prevName = logoFileName(old.logoUrl);
+    if (prevName) await deleteLogo(prevName);
+    logoUrl = `/logos/${newLogoName}`;
+  } else if (removeLogo) {
+    const prevName = logoFileName(old.logoUrl);
+    if (prevName) await deleteLogo(prevName);
+    logoUrl = null;
+  }
+
+  // Nashr uchun yagona shart: logo + kamida bitta tasdiqlangan to'lov. Tavsif uzunligi tekshirilmaydi.
+  if (status === "ACTIVE") {
+    if (!logoUrl) return { error: "Nashr qilish uchun logo majburiy" };
+    const hasPayment = old.categories.some((bc) => bc.payments.some((p) => p.status === "CONFIRMED"));
+    if (!hasPayment) return { error: "Nashr qilish uchun kamida bitta to'lov kiritilgan bo'lishi kerak" };
   }
 
   await db.$transaction(async (tx) => {
@@ -134,7 +179,7 @@ export async function saveBrand(
         create: { entityType: "brand", entityId: id, oldSlug: old.slug },
       });
     }
-    await tx.brand.update({ where: { id }, data });
+    await tx.brand.update({ where: { id }, data: { ...data, logoUrl } });
     if (removed.length) {
       await tx.brandCategory.deleteMany({ where: { id: { in: removed.map((r) => r.id) } } });
     }
@@ -148,7 +193,7 @@ export async function saveBrand(
       entityType: "Brand",
       entityId: id,
       oldValue: { ...old, categories: undefined, categoryIds: old.categories.map((c) => c.categoryId) },
-      newValue: { ...data, categoryIds },
+      newValue: { ...data, logoUrl, categoryIds },
     });
   });
   revalidatePublic();
@@ -158,11 +203,20 @@ export async function saveBrand(
 /** Soft delete: ADMIN ham qila oladi. To'lov tarixi va audit saqlanib qoladi. */
 export async function setBrandStatus(id: string, status: "ACTIVE" | "UNPUBLISHED" | "DELETED") {
   const admin = await requireAdmin();
-  const old = await db.brand.findUnique({ where: { id } });
+  const old = await db.brand.findUnique({
+    where: { id },
+    include: { categories: { include: { payments: { select: { status: true } } } } },
+  });
   if (!old || old.status === status) return;
 
-  if (status === "ACTIVE" && (old.shortDescription.length < MIN_SHORT || old.fullDescription.length < MIN_FULL)) {
-    redirect(`/admin/brands/${id}?error=${encodeURIComponent("Nashr uchun tavsif yetarli emas. Avval tavsifni to'ldiring.")}`);
+  if (status === "ACTIVE") {
+    if (!old.logoUrl) {
+      redirect(`/admin/brands/${id}?error=${encodeURIComponent("Nashr qilish uchun logo majburiy")}`);
+    }
+    const hasPayment = old.categories.some((bc) => bc.payments.some((p) => p.status === "CONFIRMED"));
+    if (!hasPayment) {
+      redirect(`/admin/brands/${id}?error=${encodeURIComponent("Nashr qilish uchun kamida bitta to'lov kiritilgan bo'lishi kerak")}`);
+    }
   }
 
   await db.$transaction(async (tx) => {

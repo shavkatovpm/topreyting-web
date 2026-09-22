@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { Building2, CalendarClock, FolderTree, Inbox, Plus, TrendingUp, Wallet } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { EXPIRING_SOON_DAYS, formatSom } from "@/lib/ranking";
-import { Card, PageHeader, Table, fmtDate, td, th } from "../_components/ui";
+import { cn } from "@/lib/utils";
+import { Card, EmptyState, PageHeader, Table, fmtDate, td, th, trHover } from "../_components/ui";
 
 export default async function DashboardPage() {
   const admin = await requireAdmin();
@@ -11,10 +14,11 @@ export default async function DashboardPage() {
   const soon = new Date(now.getTime() + EXPIRING_SOON_DAYS * 86_400_000);
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
-  const [activeBrands, activeCategories, expiring, expired, latest, allTime, thisMonth] =
+  const [activeBrands, activeCategories, pending, expiring, expired, latest, allTime, thisMonth] =
     await Promise.all([
       db.brand.count({ where: { status: "ACTIVE" } }),
       db.category.count({ where: { status: "ACTIVE" } }),
+      db.submission.count({ where: { status: "PENDING" } }),
       db.brandCategory.findMany({
         where: { activeUntil: { gt: now, lte: soon }, brand: { status: "ACTIVE" } },
         include: { brand: true, category: true },
@@ -48,13 +52,35 @@ export default async function DashboardPage() {
     <>
       <PageHeader title="Dashboard" description={`Salom, ${admin.name}`} />
 
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+        <Link href="/admin/brands/new" className={cn(buttonVariants({ size: "lg" }), "justify-center")}>
+          <Plus className="h-4 w-4" /> Brend qo&apos;shish
+        </Link>
+        <Link href="/admin/payments/new" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "justify-center bg-card")}>
+          <Plus className="h-4 w-4" /> To&apos;lov qo&apos;shish
+        </Link>
+        <Link href="/admin/categories/new" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "justify-center bg-card")}>
+          <Plus className="h-4 w-4" /> Kategoriya qo&apos;shish
+        </Link>
+        <Link
+          href="/admin/submissions"
+          className={cn(
+            buttonVariants({ variant: pending > 0 ? "gold" : "outline", size: "lg" }),
+            "justify-center",
+            pending === 0 && "bg-card"
+          )}
+        >
+          <Inbox className="h-4 w-4" /> Arizalar{pending > 0 ? ` (${pending})` : ""}
+        </Link>
+      </div>
+
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Nashr qilingan brendlar" value={String(activeBrands)} />
-        <Stat label="Faol kategoriyalar" value={String(activeCategories)} />
+        <Stat icon={Building2} label="Nashr qilingan brendlar" value={String(activeBrands)} />
+        <Stat icon={FolderTree} label="Faol kategoriyalar" value={String(activeCategories)} />
         {isSuper && (
           <>
-            <Stat label="Shu oy daromad" value={formatSom(thisMonth?._sum.amount ?? 0n)} />
-            <Stat label="Jami daromad" value={formatSom(allTime?._sum.amount ?? 0n)} />
+            <Stat icon={TrendingUp} label="Shu oy daromad" value={formatSom(thisMonth?._sum.amount ?? 0n)} accent />
+            <Stat icon={Wallet} label="Jami daromad" value={formatSom(allTime?._sum.amount ?? 0n)} accent />
           </>
         )}
       </div>
@@ -65,7 +91,7 @@ export default async function DashboardPage() {
           {`${EXPIRING_SOON_DAYS} kun ichida reytingdan chiqib ketadigan brendlar. Ular bilan bog'laning.`}
         </p>
         {expiring.length === 0 ? (
-          <Card className="text-sm text-muted-foreground">Hozircha yo&apos;q</Card>
+          <EmptyState icon={CalendarClock} title="Hozircha yo'q" description="Muddati yaqinlashgan brendlar shu yerda ko'rinadi." />
         ) : (
           <Table>
             <thead>
@@ -79,7 +105,7 @@ export default async function DashboardPage() {
             </thead>
             <tbody>
               {expiring.map((bc) => (
-                <tr key={bc.id}>
+                <tr key={bc.id} className={trHover}>
                   <td className={td}>{bc.brand.name}</td>
                   <td className={td}>{bc.category.name}</td>
                   <td className={td}>{formatSom(bc.totalPaid)}</td>
@@ -105,7 +131,7 @@ export default async function DashboardPage() {
           <Table>
             <tbody>
               {expired.map((bc) => (
-                <tr key={bc.id}>
+                <tr key={bc.id} className={trHover}>
                   <td className={td}>{bc.brand.name}</td>
                   <td className={td}>{bc.category.name}</td>
                   <td className={td}>{formatSom(bc.totalPaid)}</td>
@@ -125,12 +151,12 @@ export default async function DashboardPage() {
       <section>
         <h2 className="mb-3 text-lg font-semibold">So&apos;nggi to&apos;lovlar</h2>
         {latest.length === 0 ? (
-          <Card className="text-sm text-muted-foreground">To&apos;lovlar hali yo&apos;q</Card>
+          <EmptyState icon={Wallet} title="To'lovlar hali yo'q" description="Birinchi to'lovni kiritganingizdan so'ng shu yerda ko'rinadi." />
         ) : (
           <Table>
             <tbody>
               {latest.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.id} className={trHover}>
                   <td className={td}>{fmtDate(p.paymentDate)}</td>
                   <td className={td}>{p.brandCategory.brand.name}</td>
                   <td className={td}>{p.brandCategory.category.name}</td>
@@ -146,11 +172,31 @@ export default async function DashboardPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  /** Moliyaviy ko'rsatkichlar uchun brend rangida urg'u */
+  accent?: boolean;
+}) {
   return (
-    <Card>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xl font-bold">{value}</div>
+    <Card className="flex items-start gap-3">
+      <div
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${
+          accent ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
+        }`}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="mt-0.5 truncate text-xl font-bold tabular-nums">{value}</div>
+      </div>
     </Card>
   );
 }

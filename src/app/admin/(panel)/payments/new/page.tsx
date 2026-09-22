@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { formatSom } from "@/lib/ranking";
 import { getSettings } from "@/lib/settings";
 import { AdminForm } from "../../../_components/admin-form";
-import { Card, Field, PageHeader, inputCls, textareaCls } from "../../../_components/ui";
+import { BackLink, Card, Field, PageHeader, inputCls, textareaCls } from "../../../_components/ui";
 import { addPayment } from "../../../actions/payment";
 
 export default async function NewPaymentPage({
@@ -26,6 +26,7 @@ export default async function NewPaymentPage({
   if (options.length === 0) {
     return (
       <>
+        <BackLink href="/admin/payments" label="To'lovlar" />
         <PageHeader title="To'lov qo'shish" />
         <Card className="text-sm">Avval brend va kategoriya qo&apos;shing.</Card>
       </>
@@ -34,6 +35,7 @@ export default async function NewPaymentPage({
 
   return (
     <>
+      <BackLink href="/admin/payments" label="To'lovlar" />
       <PageHeader
         title="To'lov qo'shish"
         description={`Minimal summa: ${formatSom(settings.minPaymentAmount)}. Har bir to'lov brendni ${settings.activeMonths} oyga faollashtiradi.`}

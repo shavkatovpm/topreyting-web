@@ -1,6 +1,8 @@
 "use client";
 
 import { startTransition, useActionState } from "react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { FormState } from "../actions/shared";
 
 type Props = {
@@ -42,18 +44,16 @@ export function AdminForm({
       {state?.error && (
         <p
           role="alert"
-          className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700"
         >
+          <span aria-hidden>⚠</span>
           {state.error}
         </p>
       )}
       <button
         type="submit"
         disabled={pending}
-        className={
-          buttonClassName ??
-          "mt-5 inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50"
-        }
+        className={buttonClassName ?? cn(buttonVariants({ size: "lg" }), "mt-5")}
       >
         {pending ? "Saqlanmoqda…" : submitLabel}
       </button>

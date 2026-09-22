@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { PageHeader, StatusBadge, Table, td, th } from "../../_components/ui";
+import { PageHeader, StatusBadge, Table, td, th, trHover } from "../../_components/ui";
 
 export default async function CategoriesPage() {
   const categories = await db.category.findMany({
@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
         </thead>
         <tbody>
           {categories.map((c) => (
-            <tr key={c.id}>
+            <tr key={c.id} className={trHover}>
               <td className={td}>
                 <Link href={`/admin/categories/${c.id}`} className="font-medium text-primary hover:underline">
                   {c.name}

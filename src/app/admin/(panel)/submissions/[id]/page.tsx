@@ -1,13 +1,16 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { formatSom } from "@/lib/ranking";
 import { getSettings } from "@/lib/settings";
 import type { SubmissionBrandData } from "@/lib/submission-validation";
+import { cn } from "@/lib/utils";
 import { AdminForm } from "../../../_components/admin-form";
-import { Card, Field, PageHeader, inputCls, textareaCls } from "../../../_components/ui";
+import { BackLink, Card, Field, PageHeader, inputCls, textareaCls } from "../../../_components/ui";
 import { approveSubmissionAction, rejectSubmissionAction } from "../../../actions/submission";
+
+const spaced = (n: bigint) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 export default async function SubmissionPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -38,12 +41,8 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
 
   return (
     <>
+      <BackLink href="/admin/submissions" label="Barcha arizalar" />
       <PageHeader title={d.name} description={`${isBoost ? "Hissa oshirish (mavjud brend, yangi e'lon yaratilmaydi) · " : "Ariza · "}${sub.status === "PENDING" ? "kutilmoqda" : sub.status === "APPROVED" ? "tasdiqlangan" : "rad etilgan"}`} />
-      <p className="mb-4 text-sm">
-        <Link href="/admin/submissions" className="text-primary hover:underline">
-          ← Barcha arizalar
-        </Link>
-      </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
@@ -80,8 +79,10 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
                 PDF chekni ochish
               </a>
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={receiptUrl} alt="To'lov cheki" className="max-h-[520px] w-full rounded-lg border border-border object-contain" />
+              <a href={receiptUrl} target="_blank" rel="noopener" title="Kattalashtirish uchun bosing">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={receiptUrl} alt="To'lov cheki" className="max-h-[520px] w-full cursor-zoom-in rounded-lg border border-border object-contain" />
+              </a>
             )}
           </Card>
 
@@ -98,7 +99,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
                     label="Tasdiqlanadigan summa (so'm)"
                     hint={`Chekdagi haqiqiy summaga mos ekanini tekshiring. Minimal: ${formatSom(settings.minPaymentAmount)}`}
                   >
-                    <input name="amount" inputMode="numeric" defaultValue={sub.amount.toString()} className={inputCls} />
+                    <input name="amount" inputMode="numeric" defaultValue={spaced(sub.amount)} className={inputCls} />
                   </Field>
                 </AdminForm>
               </Card>
@@ -107,7 +108,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
                 <AdminForm
                   action={rejectSubmissionAction.bind(null, sub.id)}
                   submitLabel="Rad etish"
-                  buttonClassName="mt-4 h-10 rounded-md bg-red-600 px-5 text-sm font-medium text-white disabled:opacity-50"
+                  buttonClassName={cn(buttonVariants({ variant: "destructive", size: "lg" }), "mt-4")}
                 >
                   <textarea name="reason" required rows={2} placeholder="Sabab (majburiy)" className={textareaCls} />
                 </AdminForm>

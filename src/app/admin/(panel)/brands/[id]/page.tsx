@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { formatSom } from "@/lib/ranking";
-import { Card, Notice, PageHeader, StatusBadge, fmtDate } from "../../../_components/ui";
+import { BackLink, Card, Notice, PageHeader, StatusBadge, btnDanger, btnOutline, fmtDate } from "../../../_components/ui";
 import { setBrandStatus } from "../../../actions/brand";
 import { BrandForm } from "../brand-form";
 
@@ -22,17 +22,17 @@ export default async function EditBrandPage({
     }),
     db.category.findMany({
       where: { status: { not: "DELETED" } },
-      select: { id: true, name: true },
+      select: { id: true, name: true, status: true },
       orderBy: { name: "asc" },
     }),
   ]);
   if (!brand || brand.status === "DELETED") notFound();
 
-  const btn = "h-9 rounded-md border border-border bg-background px-3 text-sm hover:bg-secondary";
   const now = new Date();
 
   return (
     <>
+      <BackLink href="/admin/brands" label="Barcha brendlar" />
       <PageHeader title={brand.name} />
       {saved && <Notice>Saqlandi</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
@@ -41,37 +41,49 @@ export default async function EditBrandPage({
         <StatusBadge status={brand.status} />
         {brand.status === "ACTIVE" ? (
           <form action={setBrandStatus.bind(null, id, "UNPUBLISHED")}>
-            <button className={btn}>Yashirish</button>
+            <button className={btnOutline}>Yashirish</button>
           </form>
         ) : (
           <form action={setBrandStatus.bind(null, id, "ACTIVE")}>
-            <button className={btn}>Nashr qilish</button>
+            <button className={btnOutline}>Nashr qilish</button>
           </form>
         )}
         <form action={setBrandStatus.bind(null, id, "DELETED")}>
-          <button className={`${btn} text-red-700`}>O&apos;chirish</button>
+          <button className={btnDanger}>O&apos;chirish</button>
         </form>
       </div>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2">
         {brand.categories.map((bc) => {
           const live = bc.activeUntil && bc.activeUntil > now;
+          const categoryHidden = bc.category.status !== "ACTIVE";
           return (
-            <Card key={bc.id}>
-              <div className="text-sm font-semibold">{bc.category.name}</div>
-              <div className="mt-1 text-lg font-bold">{formatSom(bc.totalPaid)}</div>
-              <div className={`text-xs ${live ? "text-emerald-700" : "text-red-700"}`}>
+            <Card key={bc.id} className="flex flex-col">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-semibold">{bc.category.name}</div>
+                <span className={`h-2 w-2 shrink-0 rounded-full ${live ? "bg-emerald-500" : "bg-red-500"}`} aria-hidden />
+              </div>
+              <div className="mt-1 text-xl font-bold tabular-nums">{formatSom(bc.totalPaid)}</div>
+              <div className={`mt-0.5 text-xs ${live ? "text-emerald-700" : "text-red-700"}`}>
                 {bc.activeUntil
                   ? live
                     ? `${fmtDate(bc.activeUntil)} gacha faol`
                     : `Muddati tugagan (${fmtDate(bc.activeUntil)})`
                   : "Hali to'lov yo'q — reytingda ko'rinmaydi"}
               </div>
+              {categoryHidden && (
+                <div className="mt-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+                  Kategoriya yashirin — to&apos;lov bo&apos;lsa ham brend saytda ko&apos;rinmaydi.{" "}
+                  <Link href={`/admin/categories/${bc.categoryId}`} className="underline">
+                    Nashr qilish
+                  </Link>
+                </div>
+              )}
               <Link
                 href={`/admin/payments/new?bc=${bc.id}`}
-                className="mt-3 inline-block text-sm text-primary hover:underline"
+                className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
               >
-                To&apos;lov kiritish
+                To&apos;lov kiritish →
               </Link>
             </Card>
           );

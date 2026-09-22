@@ -77,6 +77,55 @@ export async function saveCategory(
   redirect(`/admin/categories/${id}?saved=1`);
 }
 
+/**
+ * Brend formasidan chaqiriladi: kerakli kategoriya ro'yxatda yo'q bo'lsa, sahifadan chiqmasdan
+ * shu yerning o'zida yaratiladi. Placeholder SEO matni bilan, YASHIRIN holatda — admin keyin
+ * "Kategoriyalar" bo'limida haqiqiy matn yozib nashr qiladi.
+ */
+export async function quickCreateCategory(
+  name: string
+): Promise<{ ok: true; id: string; name: string } | { ok: false; error: string }> {
+  const admin = await requireAdmin();
+  const trimmed = name.trim().slice(0, 80);
+  if (trimmed.length < 3) return { ok: false, error: "Kamida 3 belgi" };
+
+  const base = trimmed
+    .toLowerCase()
+    .replace(/[ʻʼ'`’‘]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  if (!base || RESERVED_CATEGORY_SLUGS.has(base)) {
+    return { ok: false, error: "Bu nomdan slug yasab bo'lmadi, boshqacha nomlang" };
+  }
+  let slug = base;
+  for (let n = 2; await db.category.findUnique({ where: { slug } }); n++) slug = `${base}-${n}`;
+
+  const data = {
+    slug,
+    name: trimmed,
+    h1: trimmed,
+    seoTitle: `${trimmed} — TOP reyting | Topreyting.uz`.slice(0, 70),
+    metaDescription: `${trimmed} bo'yicha O'zbekistondagi brendlar reytingi. To'lov asosida shakllanadigan ochiq reyting — Topreyting.uz.`.slice(0, 170),
+    shortDescription: `${trimmed} bo'yicha O'zbekistondagi brendlar reytingi.`.slice(0, 400),
+    status: "UNPUBLISHED" as const,
+  };
+
+  const created = await db.$transaction(async (tx) => {
+    const c = await tx.category.create({ data });
+    await logAudit(tx, {
+      adminId: admin.id,
+      action: "CATEGORY_QUICK_CREATED",
+      entityType: "Category",
+      entityId: c.id,
+      newValue: data,
+    });
+    return c;
+  });
+
+  return { ok: true, id: created.id, name: created.name };
+}
+
 export async function setCategoryStatus(id: string, status: "ACTIVE" | "UNPUBLISHED" | "DELETED") {
   // O'chirish faqat SUPER_ADMIN; nashr qilish/yashirish ADMIN ham qila oladi
   const admin = status === "DELETED" ? await requireSuperAdmin() : await requireAdmin();

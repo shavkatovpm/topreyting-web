@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { requireSuperAdmin } from "@/lib/auth";
-import { PageHeader, Table, td, th } from "../../_components/ui";
+import { PageHeader, Table, td, th, trHover } from "../../_components/ui";
 
 export default async function LogsPage() {
   await requireSuperAdmin();
@@ -28,7 +28,7 @@ export default async function LogsPage() {
         </thead>
         <tbody>
           {logs.map((l) => (
-            <tr key={l.id}>
+            <tr key={l.id} className={trHover}>
               <td className={`${td} whitespace-nowrap text-muted-foreground`}>{stamp(l.createdAt)}</td>
               <td className={td}>{l.admin?.name ?? "—"}</td>
               <td className={td}>{l.action}</td>
