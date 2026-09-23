@@ -164,11 +164,20 @@ export async function saveBrand(
     logoUrl = null;
   }
 
-  // Nashr uchun yagona shart: logo + kamida bitta tasdiqlangan to'lov. Tavsif uzunligi tekshirilmaydi.
+  // Nashr sharti: logo + kamida bitta tasdiqlangan to'lov + kamida bitta NASHR QILINGAN
+  // kategoriya (aks holda brend "faol" bo'lsa ham hech qayerda ko'rinmaydi — bu ikki marta
+  // sodir bo'lgan haqiqiy xato). Tavsif uzunligi tekshirilmaydi.
   if (status === "ACTIVE") {
     if (!logoUrl) return { error: "Nashr qilish uchun logo majburiy" };
     const hasPayment = old.categories.some((bc) => bc.payments.some((p) => p.status === "CONFIRMED"));
     if (!hasPayment) return { error: "Nashr qilish uchun kamida bitta to'lov kiritilgan bo'lishi kerak" };
+    const hasVisibleCategory = cats.some((c) => c.status === "ACTIVE");
+    if (!hasVisibleCategory) {
+      return {
+        error:
+          "Nashr qilish uchun bog'langan kategoriyalardan kamida bittasi nashr qilingan bo'lishi kerak (hozir hammasi yashirin). Avval «Kategoriyalar» bo'limida kerakli kategoriyani nashr qiling.",
+      };
+    }
   }
 
   await db.$transaction(async (tx) => {
@@ -205,7 +214,11 @@ export async function setBrandStatus(id: string, status: "ACTIVE" | "UNPUBLISHED
   const admin = await requireAdmin();
   const old = await db.brand.findUnique({
     where: { id },
-    include: { categories: { include: { payments: { select: { status: true } } } } },
+    include: {
+      categories: {
+        include: { payments: { select: { status: true } }, category: { select: { status: true } } },
+      },
+    },
   });
   if (!old || old.status === status) return;
 
@@ -216,6 +229,12 @@ export async function setBrandStatus(id: string, status: "ACTIVE" | "UNPUBLISHED
     const hasPayment = old.categories.some((bc) => bc.payments.some((p) => p.status === "CONFIRMED"));
     if (!hasPayment) {
       redirect(`/admin/brands/${id}?error=${encodeURIComponent("Nashr qilish uchun kamida bitta to'lov kiritilgan bo'lishi kerak")}`);
+    }
+    const hasVisibleCategory = old.categories.some((bc) => bc.category.status === "ACTIVE");
+    if (!hasVisibleCategory) {
+      redirect(
+        `/admin/brands/${id}?error=${encodeURIComponent("Nashr qilish uchun bog'langan kategoriyalardan kamida bittasi nashr qilingan bo'lishi kerak")}`
+      );
     }
   }
 

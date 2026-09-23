@@ -126,7 +126,15 @@ export async function quickCreateCategory(
   return { ok: true, id: created.id, name: created.name };
 }
 
-export async function setCategoryStatus(id: string, status: "ACTIVE" | "UNPUBLISHED" | "DELETED") {
+/**
+ * `returnTo` — brend sahifasidagi "kategoriya yashirin" ogohlantirishidan chaqirilganda,
+ * kategoriyalar ro'yxati o'rniga o'sha brend sahifasiga qaytarish uchun.
+ */
+export async function setCategoryStatus(
+  id: string,
+  status: "ACTIVE" | "UNPUBLISHED" | "DELETED",
+  returnTo?: string
+) {
   // O'chirish faqat SUPER_ADMIN; nashr qilish/yashirish ADMIN ham qila oladi
   const admin = status === "DELETED" ? await requireSuperAdmin() : await requireAdmin();
   const old = await db.category.findUnique({ where: { id } });
@@ -143,5 +151,5 @@ export async function setCategoryStatus(id: string, status: "ACTIVE" | "UNPUBLIS
     });
   });
   revalidatePublic();
-  redirect("/admin/categories");
+  redirect(status !== "DELETED" && returnTo ? returnTo : "/admin/categories");
 }

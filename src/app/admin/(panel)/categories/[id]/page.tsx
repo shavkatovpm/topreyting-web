@@ -27,16 +27,16 @@ export default async function EditCategoryPage({
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <StatusBadge status={category.status} />
         {category.status === "ACTIVE" ? (
-          <form action={setCategoryStatus.bind(null, id, "UNPUBLISHED")}>
+          <form action={setCategoryStatus.bind(null, id, "UNPUBLISHED", undefined)}>
             <button className={btnOutline}>Yashirish</button>
           </form>
         ) : (
-          <form action={setCategoryStatus.bind(null, id, "ACTIVE")}>
+          <form action={setCategoryStatus.bind(null, id, "ACTIVE", undefined)}>
             <button className={btnOutline}>Nashr qilish</button>
           </form>
         )}
         {admin.role === "SUPER_ADMIN" && (
-          <form action={setCategoryStatus.bind(null, id, "DELETED")}>
+          <form action={setCategoryStatus.bind(null, id, "DELETED", undefined)}>
             <button className={btnDanger}>O&apos;chirish</button>
           </form>
         )}

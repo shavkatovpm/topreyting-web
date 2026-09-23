@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { formatSom } from "@/lib/ranking";
 import { BackLink, Card, Notice, PageHeader, StatusBadge, btnDanger, btnOutline, fmtDate } from "../../../_components/ui";
 import { setBrandStatus } from "../../../actions/brand";
+import { setCategoryStatus } from "../../../actions/category";
 import { BrandForm } from "../brand-form";
 
 export default async function EditBrandPage({
@@ -72,11 +73,18 @@ export default async function EditBrandPage({
                   : "Hali to'lov yo'q — reytingda ko'rinmaydi"}
               </div>
               {categoryHidden && (
-                <div className="mt-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
-                  Kategoriya yashirin — to&apos;lov bo&apos;lsa ham brend saytda ko&apos;rinmaydi.{" "}
-                  <Link href={`/admin/categories/${bc.categoryId}`} className="underline">
-                    Nashr qilish
-                  </Link>
+                <div className="mt-1.5 space-y-1.5 rounded-md bg-amber-50 px-2 py-1.5 text-xs font-medium text-amber-700">
+                  <p>Kategoriya yashirin — to&apos;lov bo&apos;lsa ham brend saytda ko&apos;rinmaydi.</p>
+                  <div className="flex items-center gap-3">
+                    <form action={setCategoryStatus.bind(null, bc.categoryId, "ACTIVE", `/admin/brands/${id}`)}>
+                      <button className="rounded-md bg-amber-600 px-2 py-1 text-xs font-semibold text-white hover:bg-amber-700">
+                        Kategoriyani nashr qilish
+                      </button>
+                    </form>
+                    <Link href={`/admin/categories/${bc.categoryId}`} className="underline">
+                      SEO matnini tahrirlash
+                    </Link>
+                  </div>
                 </div>
               )}
               <Link

@@ -114,7 +114,7 @@ export function BrandForm({
           label="Holat"
           hint={
             b
-              ? "Nashr qilish uchun: logo yuklangan va kamida bitta to'lov kiritilgan bo'lishi shart"
+              ? "Nashr qilish uchun: logo yuklangan, kamida bitta to'lov kiritilgan va bog'langan kategoriyalardan kamida bittasi nashr qilingan bo'lishi shart"
               : "Yangi brend avval «Yashirin» sifatida saqlanadi — to'lov kiritilgandan keyin shu sahifada nashr qilasiz"
           }
         >
